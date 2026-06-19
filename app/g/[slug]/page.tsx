@@ -49,11 +49,13 @@ export default function GoalPage() {
 
   if (phase === "loading") {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center gap-4">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center px-6 pt-16">
         <div className="float-slow">
-          <CoinJar pct={40} size={140} />
+          <CoinJar pct={35} size={200} />
         </div>
-        <p className="text-sm font-bold text-ink-soft">Sebentar ya...</p>
+        <div className="mt-6 h-7 w-44 overflow-hidden rounded-full bg-gold-soft/70 shimmer" />
+        <div className="mt-3 h-3.5 w-56 overflow-hidden rounded-full bg-gold-soft/60 shimmer" />
+        <div className="mt-8 h-24 w-full overflow-hidden rounded-card bg-gold-soft/40 shimmer" />
       </main>
     );
   }
@@ -127,6 +129,17 @@ export default function GoalPage() {
           <span className="font-display text-[40px] font-bold leading-none text-gold-deep">{rupiah(goal.collectedAmount)}</span>
           <span className="mt-1.5 block text-sm font-semibold text-ink-soft">dari target {goal.targetDisplay}</span>
         </div>
+        <div className="mt-4 h-3.5 w-full max-w-xs overflow-hidden rounded-full bg-gold-soft">
+          <div
+            className="h-full rounded-full transition-[width] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              width: `${pct}%`,
+              background: reached
+                ? "linear-gradient(90deg,#5fd29e,#3FB984)"
+                : "linear-gradient(90deg,#FBCB57,#F4B740)",
+            }}
+          />
+        </div>
         {reached ? (
           <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
             🎉 Target tercapai! Dana bisa ditarik.
@@ -146,13 +159,22 @@ export default function GoalPage() {
         </div>
         {goal.members.length > 0 && (
           <ul className="mt-4 flex flex-col gap-3">
-            {goal.members.map((m) => (
-              <li key={m.id} className="flex items-center gap-3">
-                <Avatar seed={m.avatarSeed} size={36} />
-                <span className="flex-1 text-sm font-bold text-ink">{m.displayName}</span>
-                <span className="text-sm font-semibold text-ink-soft">{rupiah(m.totalDeposited)}</span>
-              </li>
-            ))}
+            {goal.members.map((m) => {
+              const isMe = m.memberAddr === myAddr;
+              return (
+                <li
+                  key={m.id}
+                  className={`flex items-center gap-3 rounded-2xl ${isMe ? "-mx-2 bg-gold-soft/60 px-2 py-1.5" : ""}`}
+                >
+                  <Avatar seed={m.avatarSeed} size={36} />
+                  <span className="flex-1 text-sm font-bold text-ink">
+                    {m.displayName}
+                    {isMe && <span className="ml-1.5 text-[11px] font-bold text-gold-deep">(kamu)</span>}
+                  </span>
+                  <span className="text-sm font-semibold text-ink-soft">{rupiah(m.totalDeposited)}</span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </Card>

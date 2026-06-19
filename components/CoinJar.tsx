@@ -99,27 +99,29 @@ export function CoinJar({
         />
 
         {/* Coin fill (clipped to cavity) */}
-        <g clipPath="url(#tugCavity)">
-          <rect
-            className="fill-rise"
-            x="34"
-            y={fillY}
-            width="132"
-            height={cavityBottom - fillY + 8}
-            fill="url(#tugGold)"
-          />
-          {clamped > 5 && <CoinSurface y={fillY} />}
+        <g clipPath="url(#tugCavity)" className={clamped > 0 ? "fill-rise" : ""}>
+          <rect x="34" y={fillY} width="132" height={cavityBottom - fillY + 8} fill="url(#tugGold)" />
+          {/* Inner bottom shadow for depth */}
+          <ellipse cx="100" cy={cavityBottom} rx="70" ry="22" fill="#C9821A" opacity="0.45" />
+          {clamped > 5 && (
+            <>
+              {/* Meniscus: a lighter band at the coin surface */}
+              <ellipse cx="100" cy={fillY + 2} rx="66" ry="9" fill="#FFE39A" opacity="0.9" />
+              <CoinSurface y={fillY} dense={clamped > 45} />
+            </>
+          )}
         </g>
 
-        {/* Glass sheen */}
+        {/* Glass body highlight (soft blob, top-left) */}
         <path
-          d="M52 74 Q45 124 54 184"
+          d="M52 74 Q44 110 50 158"
           stroke="#FFFFFF"
-          strokeWidth="7"
+          strokeWidth="8"
           strokeLinecap="round"
-          opacity="0.7"
+          opacity="0.75"
           fill="none"
         />
+        <ellipse cx="68" cy="92" rx="9" ry="16" fill="#FFFFFF" opacity="0.5" transform="rotate(-18 68 92)" />
 
         {/* Rim / opening */}
         <ellipse cx="100" cy="60" rx="44" ry="13" fill="#FBF6EC" stroke="#ECE7DE" strokeWidth="3" />
@@ -142,20 +144,26 @@ export function CoinJar({
   );
 }
 
-// Heart-coins peeking at the fill surface.
-function CoinSurface({ y }: { y: number }) {
-  const coins = [
-    { cx: 68, dy: 9 },
-    { cx: 100, dy: 4 },
-    { cx: 132, dy: 9 },
-    { cx: 84, dy: 16 },
-    { cx: 116, dy: 16 },
+// Heart-coins stacked at the fill surface. A second row appears once the jar
+// is reasonably full, so it reads as a real coin pile.
+function CoinSurface({ y, dense }: { y: number; dense?: boolean }) {
+  const top = [
+    { cx: 68, dy: 8 },
+    { cx: 100, dy: 3 },
+    { cx: 132, dy: 8 },
   ];
+  const lower = [
+    { cx: 84, dy: 17 },
+    { cx: 116, dy: 17 },
+    { cx: 100, dy: 26 },
+  ];
+  const coins = dense ? [...lower, ...top] : top; // draw lower first (behind)
   return (
     <>
       {coins.map((c, i) => (
-        <g key={i} transform={`translate(${c.cx}, ${y + c.dy})`}>
+        <g key={`${c.cx}-${c.dy}`} transform={`translate(${c.cx}, ${y + c.dy})`}>
           <circle r="9.5" fill={i % 2 ? "#FFE39A" : "#FFD976"} stroke="#E09A1E" strokeWidth="2" />
+          <circle cx="-3" cy="-3" r="2.4" fill="#FFFFFF" opacity="0.6" />
           <path d="M0 -3 c-2 -2.6 -6 -0.6 -6 2.4 c0 2.6 3.4 4.6 6 6.4 c2.6 -1.8 6 -3.8 6 -6.4 c0 -3 -4 -5 -6 -2.4 Z" fill="#E09A1E" />
         </g>
       ))}

@@ -27,7 +27,7 @@ export default function ProfilePage() {
 
       <div className="mt-6 flex flex-col gap-3">
         <Link href="/goals">
-          <PillButton variant="light" className="w-full justify-between">
+          <PillButton variant="light" className="w-full">
             Tujuanku <span aria-hidden>→</span>
           </PillButton>
         </Link>

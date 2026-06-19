@@ -4,10 +4,40 @@ import { WordMark } from "@/components/BrandIcon";
 import { CoinJar } from "@/components/CoinJar";
 import { BottomNav } from "@/components/BottomNav";
 
+const ICON = "#E09A1E";
+
 const STEPS = [
-  { emoji: "🎯", title: "Buat tujuan", desc: "Kasih nama dan target nominal" },
-  { emoji: "🔗", title: "Ajak teman", desc: "Bagikan satu link, siapa pun bisa gabung" },
-  { emoji: "🐷", title: "Nabung bareng", desc: "Setor dari mana pun, celengan terisi sampai penuh" },
+  {
+    title: "Buat tujuan",
+    desc: "Kasih nama dan target nominal",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="8.5" stroke={ICON} strokeWidth="1.9" />
+        <circle cx="12" cy="12" r="4" stroke={ICON} strokeWidth="1.9" />
+        <circle cx="12" cy="12" r="1" fill={ICON} />
+      </svg>
+    ),
+  },
+  {
+    title: "Ajak teman",
+    desc: "Bagikan satu link, siapa pun bisa gabung",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M9.5 14.5l5-5M8 11l-2 2a3.5 3.5 0 005 5l2-2M16 13l2-2a3.5 3.5 0 00-5-5l-2 2" stroke={ICON} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    title: "Nabung bareng",
+    desc: "Setor dari mana pun, terisi sampai penuh",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="13" r="6.5" stroke={ICON} strokeWidth="1.9" />
+        <path d="M12 4v3" stroke={ICON} strokeWidth="1.9" strokeLinecap="round" />
+        <path d="M12 11c-1.2-1.6-3.6-.4-3.6 1.4 0 1.6 2 2.8 3.6 4 1.6-1.2 3.6-2.4 3.6-4 0-1.8-2.4-3-3.6-1.4z" fill={ICON} />
+      </svg>
+    ),
+  },
 ];
 
 export default function Home() {
@@ -47,8 +77,10 @@ export default function Home() {
             style={{ "--i": i } as React.CSSProperties}
             className="rounded-card border border-line bg-surface px-2 py-4 text-center shadow-card"
           >
-            <div className="text-2xl">{s.emoji}</div>
-            <span className="mt-2 block font-display text-sm font-semibold text-ink">{s.title}</span>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] bg-gold-soft">
+              {s.icon}
+            </div>
+            <span className="mt-2.5 block font-display text-sm font-semibold text-ink">{s.title}</span>
             <span className="mt-1 block text-[11px] leading-snug text-ink-soft">{s.desc}</span>
           </div>
         ))}
