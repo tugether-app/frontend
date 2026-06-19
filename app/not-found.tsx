@@ -6,10 +6,10 @@ export default function NotFound() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
       <CoinJar pct={0} size={150} />
-      <h1 className="text-xl font-extrabold text-ink">Halaman tidak ketemu</h1>
-      <p className="max-w-xs text-sm text-ink-soft">Mungkin link-nya salah atau tujuannya sudah ditutup.</p>
+      <h1 className="font-display text-xl font-semibold text-ink">Page not found</h1>
+      <p className="max-w-xs text-sm font-medium text-ink-soft">The link may be wrong or the goal was closed.</p>
       <Link href="/">
-        <PillButton>Kembali ke beranda</PillButton>
+        <PillButton>Back to home</PillButton>
       </Link>
     </main>
   );

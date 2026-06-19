@@ -1,6 +1,6 @@
 import type { Goal, GoalStatus, Member } from "./types";
 import { allGoals, findById, findBySlug, insert } from "./store";
-import { rupiah } from "./format";
+import { money } from "./format";
 import * as zerodev from "./sdk/zerodev";
 import * as particle from "./sdk/particle";
 
@@ -29,7 +29,7 @@ function slugify(name: string): string {
       .replace(/[^a-z0-9\s-]/g, "")
       .trim()
       .replace(/\s+/g, "-")
-      .slice(0, 40) || "tujuan";
+      .slice(0, 40) || "goal";
   return `${b}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
@@ -44,7 +44,7 @@ export async function listGoals(): Promise<Goal[]> {
 
 export async function getBySlug(slug: string): Promise<Goal> {
   const g = findBySlug(slug);
-  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Tujuan tidak ditemukan.");
+  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
   return g;
 }
 
@@ -54,9 +54,9 @@ export async function createGoal(input: {
   creatorAddr?: string;
 }): Promise<Goal> {
   if (!input.name || input.name.trim().length < 3)
-    throw new ApiError(400, "INVALID_NAME", "Nama tujuan minimal 3 karakter.");
+    throw new ApiError(400, "INVALID_NAME", "Goal name needs at least 3 characters.");
   if (!(input.targetAmount > 0))
-    throw new ApiError(400, "INVALID_TARGET", "Target harus lebih dari nol.");
+    throw new ApiError(400, "INVALID_TARGET", "Target must be greater than zero.");
 
   const creator = input.creatorAddr ?? "0x0000000000000000000000000000000000000000";
   const { vaultAddr } = await zerodev.deployGoalVault({ creator, targetAmount: input.targetAmount });
@@ -65,7 +65,7 @@ export async function createGoal(input: {
     id: uuid(),
     joinSlug: slugify(input.name),
     name: input.name.trim(),
-    targetDisplay: rupiah(input.targetAmount),
+    targetDisplay: money(input.targetAmount),
     targetAmount: input.targetAmount,
     collectedAmount: 0,
     status: "open",
@@ -82,16 +82,16 @@ export async function joinGoal(
   input: { memberAddr: string; displayName: string; avatarSeed?: string },
 ): Promise<Member> {
   const g = findById(id);
-  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Tujuan tidak ditemukan.");
+  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
   if (g.members.some((m) => m.memberAddr === input.memberAddr))
-    throw new ApiError(409, "ALREADY_MEMBER", "Kamu sudah jadi anggota tujuan ini.");
+    throw new ApiError(409, "ALREADY_MEMBER", "You are already a member of this goal.");
 
   // First touch: upgrade EOA -> Universal Account (7702).
   const uaAddr = await particle.ensureUniversalAccount(input.memberAddr);
 
   const member: Member = {
     id: uuid(),
-    displayName: input.displayName || "Anggota",
+    displayName: input.displayName || "Member",
     avatarSeed: input.avatarSeed || uaAddr,
     totalDeposited: 0,
     joinedAt: new Date().toISOString(),
@@ -106,11 +106,11 @@ export async function recordDeposit(
   input: { memberAddr: string; amount: number; sourceChain?: string },
 ): Promise<Goal> {
   const g = findById(id);
-  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Tujuan tidak ditemukan.");
-  if (!(input.amount > 0)) throw new ApiError(400, "INVALID_AMOUNT", "Nominal setoran tidak valid.");
+  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
+  if (!(input.amount > 0)) throw new ApiError(400, "INVALID_AMOUNT", "Deposit amount is not valid.");
 
   const member = g.members.find((m) => m.memberAddr === input.memberAddr);
-  if (!member) throw new ApiError(403, "NOT_MEMBER", "Hanya anggota yang bisa menyetor.");
+  if (!member) throw new ApiError(403, "NOT_MEMBER", "Only members can deposit.");
 
   // Route the cross-chain deposit into the vault's pooled balance.
   await particle.routeDeposit({
@@ -130,9 +130,9 @@ export async function recordDeposit(
 
 export async function withdrawGoal(id: string, input: { toAddr: string }): Promise<Goal> {
   const g = findById(id);
-  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Tujuan tidak ditemukan.");
+  if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
   if (g.status !== "reached")
-    throw new ApiError(403, "TARGET_NOT_REACHED", "Dana baru bisa ditarik setelah target tercapai.");
+    throw new ApiError(403, "TARGET_NOT_REACHED", "Funds can only be withdrawn once the target is reached.");
 
   // Lock rule is enforced on-chain by the ZeroDev permission; this just sends it.
   await zerodev.withdraw({ vaultAddr: g.vaultAddr ?? "", to: input.toAddr });

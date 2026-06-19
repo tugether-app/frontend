@@ -63,7 +63,7 @@ export function CoinJar({
       className={`relative inline-block ${className}`}
       style={{ width: size, height: size * 1.12 }}
       role="img"
-      aria-label={`Celengan terisi ${clamped} persen`}
+      aria-label={`Jar filled ${clamped} percent`}
     >
       {showCoin && (
         <div className="coin-drop pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2">

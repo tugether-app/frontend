@@ -17,8 +17,8 @@ const nunito = Nunito({
   display: "swap",
 });
 
-const TITLE = "Tugether - Nabung bareng sampai tercapai";
-const DESC = "Kumpulin dana bareng menuju satu tujuan. Cukup login email, tanpa wallet.";
+const TITLE = "Tugether - Save together, reach it together";
+const DESC = "Pool money toward one shared goal. Just sign in with email, no wallet needed.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -41,7 +41,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <div className="aurora" aria-hidden />
         <ToastProvider>{children}</ToastProvider>

@@ -15,27 +15,27 @@ export default function ProfilePage() {
         </Link>
       </header>
 
-      <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">Profil</h1>
+      <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">Profile</h1>
 
       <Card className="mt-6 flex items-center gap-4 p-5">
         <Avatar seed="you" size={56} />
         <div className="min-w-0">
-          <p className="font-display text-lg font-semibold text-ink">Kamu</p>
-          <p className="truncate text-sm font-medium text-ink-soft">login dengan email</p>
+          <p className="font-display text-lg font-semibold text-ink">You</p>
+          <p className="truncate text-sm font-medium text-ink-soft">signed in with email</p>
         </div>
       </Card>
 
       <div className="mt-6 flex flex-col gap-3">
         <Link href="/goals">
           <PillButton variant="light" className="w-full">
-            Tujuanku <span aria-hidden>→</span>
+            My Goals <span aria-hidden>→</span>
           </PillButton>
         </Link>
-        <PillButton variant="ghost" className="w-full">Keluar</PillButton>
+        <PillButton variant="ghost" className="w-full">Sign out</PillButton>
       </div>
 
-      <p className="mt-auto pt-8 text-center text-xs font-semibold text-ink-soft/60">
-        Tanpa wallet, tanpa seed phrase. Cukup email.
+      <p className="mt-auto pt-8 text-center text-xs font-semibold text-ink-soft/70">
+        No wallet, no seed phrase. Just email.
       </p>
 
       <BottomNav />

@@ -1,8 +1,8 @@
 import type { Goal } from "./types";
 
-// Rupiah display. Base targets in IDR for the hackathon demo.
-export function rupiah(n: number): string {
-  return "Rp " + Math.round(n).toLocaleString("id-ID");
+// USD display for now. A later language/currency setting can swap this.
+export function money(n: number): string {
+  return "$" + Math.round(n).toLocaleString("en-US");
 }
 
 export function progressPct(goal: Pick<Goal, "collectedAmount" | "targetAmount">): number {
@@ -19,8 +19,7 @@ export function shortAddr(addr?: string): string {
 export function avatarColor(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % 360;
-  // Bias hue to warm range (gold/peach/coral): 20..55 deg.
-  const hue = 20 + (h % 35);
+  const hue = 20 + (h % 35); // warm range (gold/peach/coral)
   return `hsl(${hue} 80% 62%)`;
 }
 

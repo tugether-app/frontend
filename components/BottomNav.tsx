@@ -25,7 +25,7 @@ const ITEMS: Item[] = [
   },
   {
     href: "/create",
-    label: "Buat",
+    label: "Create",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="8" stroke={a ? "#E09A1E" : "#8A8178"} strokeWidth="1.8" />
@@ -35,7 +35,7 @@ const ITEMS: Item[] = [
   },
   {
     href: "/goals",
-    label: "Tujuanku",
+    label: "My Goals",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path
@@ -50,7 +50,7 @@ const ITEMS: Item[] = [
   },
   {
     href: "/profile",
-    label: "Profil",
+    label: "Profile",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="9" r="3.4" stroke={a ? "#E09A1E" : "#8A8178"} strokeWidth="1.8" />

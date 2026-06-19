@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Goal } from "@/lib/types";
-import { progressPct, rupiah } from "@/lib/format";
+import { progressPct, money } from "@/lib/format";
 import { ProgressRing } from "./ProgressRing";
 import { MemberAvatars } from "./MemberAvatars";
 
@@ -18,7 +18,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
             <h3 className="truncate font-display text-xl font-semibold text-ink">{goal.name}</h3>
             {reached && (
               <span className="mt-1 inline-block rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-bold text-success">
-                Tercapai
+                Reached
               </span>
             )}
           </div>
@@ -26,15 +26,15 @@ export function GoalCard({ goal }: { goal: Goal }) {
         </div>
 
         <div className="mt-4 font-display text-[28px] font-bold leading-none text-gold-deep">
-          {rupiah(goal.collectedAmount)}
+          {money(goal.collectedAmount)}
         </div>
-        <div className="mt-1 text-[13px] font-semibold text-ink-soft">dari {goal.targetDisplay}</div>
+        <div className="mt-1 text-[13px] font-semibold text-ink-soft">of {goal.targetDisplay}</div>
 
         <div className="my-4 h-px bg-line" />
 
         <div className="flex items-center justify-between">
           <MemberAvatars members={goal.members} size={34} />
-          <span className="text-xs font-bold text-ink-soft">{goal.members.length} anggota</span>
+          <span className="text-xs font-bold text-ink-soft">{goal.members.length} members</span>
         </div>
       </div>
     </Link>

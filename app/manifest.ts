@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Tugether",
     short_name: "Tugether",
-    description: "Nabung bareng sampai tercapai. Cukup login email, tanpa wallet.",
+    description: "Save together, reach it together. Just sign in with email, no wallet needed.",
     start_url: "/",
     display: "standalone",
     background_color: "#fbfaf7",

@@ -6,7 +6,7 @@ export default function Loading() {
       <div className="float-slow">
         <CoinJar pct={40} size={140} />
       </div>
-      <p className="text-sm font-semibold text-ink-soft">Sebentar ya...</p>
+      <p className="text-sm font-semibold text-ink-soft">One sec...</p>
     </main>
   );
 }

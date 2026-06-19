@@ -10,7 +10,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
   });
   const body = await res.json().catch(() => null);
   if (!res.ok) {
-    const msg = body?.error?.message ?? "Terjadi kesalahan.";
+    const msg = body?.error?.message ?? "Something went wrong.";
     throw new Error(msg);
   }
   return body as T;

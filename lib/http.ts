@@ -14,7 +14,7 @@ export function fail(err: unknown) {
   }
   console.error("Unhandled API error:", err);
   return NextResponse.json(
-    { error: { code: "INTERNAL", message: "Terjadi kesalahan. Coba lagi." } },
+    { error: { code: "INTERNAL", message: "Something went wrong. Please try again." } },
     { status: 500 },
   );
 }
