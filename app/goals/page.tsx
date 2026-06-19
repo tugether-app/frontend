@@ -4,13 +4,14 @@ import { WordMark } from "@/components/BrandIcon";
 import { GoalCard } from "@/components/GoalCard";
 import { CoinJar } from "@/components/CoinJar";
 import { BottomNav } from "@/components/BottomNav";
-import { MOCK_GOALS } from "@/lib/mock";
+import { listGoals } from "@/lib/db";
 
-// My goals. Lists goals the member created or joined.
-// BE pass: read from /api keyed by the logged-in member address.
+// My goals. Server component reads the data layer directly.
+// BE live: scope to the logged-in member address.
+export const dynamic = "force-dynamic";
 
-export default function GoalsPage() {
-  const goals = MOCK_GOALS;
+export default async function GoalsPage() {
+  const goals = await listGoals();
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">

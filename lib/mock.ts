@@ -1,9 +1,9 @@
 import type { Goal } from "./types";
 
-// Placeholder data so the base UI renders before the SDK + API layer lands.
-// Swap for real /api calls (see docs/SCHEMA.md) in the BE pass.
+// Seed data for the in-memory store (lib/store.ts). Swap the store for Supabase
+// (see docs/SCHEMA.md) to go live; this seed can stay for local/demo.
 
-export const MOCK_GOALS: Goal[] = [
+export const SEED_GOALS: Goal[] = [
   {
     id: "g1",
     joinSlug: "trip-bali-2026",
@@ -40,7 +40,3 @@ export const MOCK_GOALS: Goal[] = [
     ],
   },
 ];
-
-export function getGoalBySlug(slug: string): Goal | undefined {
-  return MOCK_GOALS.find((g) => g.joinSlug === slug);
-}

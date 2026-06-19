@@ -7,21 +7,12 @@ import { WordMark } from "@/components/BrandIcon";
 import { CoinJar } from "@/components/CoinJar";
 import { ShareButton } from "@/components/ShareButton";
 import { StepDots } from "@/components/Stepper";
+import { useToast } from "@/components/Toast";
+import { api } from "@/lib/client";
 import { rupiah } from "@/lib/format";
 
-// Base create flow. Name + target -> generates an invite slug and shows the
-// share step. Wires to POST /api/goals (deploy GoalVault) in the BE pass.
-
-function slugify(name: string): string {
-  return (
-    name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-")
-      .slice(0, 40) || "tujuan"
-  );
-}
+// Create flow. Name + target -> POST /api/goals (deploys GoalVault), then the
+// share step with the returned invite slug.
 
 const PRESETS = [500_000, 1_000_000, 2_000_000, 5_000_000];
 
@@ -30,16 +21,21 @@ export default function CreatePage() {
   const [target, setTarget] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+  const toast = useToast();
 
   const valid = name.trim().length >= 3 && typeof target === "number" && target >= 50_000;
 
   async function submit() {
-    if (!valid) return;
+    if (!valid || typeof target !== "number") return;
     setLoading(true);
-    // TODO(BE): POST /api/goals -> deploy GoalVault, return real slug + vault addr.
-    await new Promise((r) => setTimeout(r, 900));
-    setCreatedSlug(slugify(name) + "-" + Math.random().toString(36).slice(2, 6));
-    setLoading(false);
+    try {
+      const goal = await api.createGoal({ name: name.trim(), targetAmount: target });
+      setCreatedSlug(goal.joinSlug);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Gagal membuat tujuan", "error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (createdSlug) {

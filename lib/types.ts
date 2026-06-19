@@ -9,6 +9,7 @@ export interface Member {
   avatarSeed: string;
   totalDeposited: number;
   joinedAt: string;
+  memberAddr?: string; // UA address (set on join via 7702)
 }
 
 export interface Goal {
