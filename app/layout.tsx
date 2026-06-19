@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 
-const jakarta = Plus_Jakarta_Sans({
+// Fredoka: rounded geometric headings. Nunito: humanist body. Per UI reference.
+const fredoka = Fredoka({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
   display: "swap",
 });
@@ -34,7 +41,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={jakarta.variable}>
+    <html lang="id" className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <div className="aurora" aria-hidden />
         <ToastProvider>{children}</ToastProvider>

@@ -8,11 +8,13 @@ import { WordMark } from "@/components/BrandIcon";
 import { CoinJar } from "@/components/CoinJar";
 import { ProgressRing } from "@/components/ProgressRing";
 import { MemberAvatars } from "@/components/MemberAvatars";
+import { Avatar } from "@/components/Avatar";
 import { Confetti } from "@/components/Confetti";
 import { ShareButton } from "@/components/ShareButton";
+import { Chip } from "@/components/ui";
 import { useToast } from "@/components/Toast";
 import { getGoalBySlug } from "@/lib/mock";
-import { progressPct, rupiah, avatarColor, initials } from "@/lib/format";
+import { progressPct, rupiah } from "@/lib/format";
 import type { Goal } from "@/lib/types";
 
 // Goal detail: the coin jar hero + join + deposit. Reads mock data for now;
@@ -90,44 +92,39 @@ export default function GoalPage() {
 
       {/* Hero */}
       <div className="mt-4 flex flex-col items-center text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink">{goal.name}</h1>
-        <p className="mt-1 text-sm text-ink-soft">
-          {members.length} orang nabung bareng
-        </p>
+        <h1 className="font-display text-[26px] font-semibold tracking-tight text-ink">{goal.name}</h1>
+        <p className="mt-1 text-sm font-semibold text-ink-soft">{members.length} orang nabung bareng</p>
         <div className="mt-4">
-          <CoinJar pct={pct} size={250} reached={reached} />
+          <CoinJar pct={pct} size={250} sparkles={reached} />
         </div>
         <div className="mt-2">
-          <span className="text-3xl font-extrabold text-ink">{rupiah(collected)}</span>
-          <span className="block text-sm text-ink-soft">dari target {goal.targetDisplay}</span>
+          <span className="font-display text-[40px] font-bold leading-none text-gold-deep">{rupiah(collected)}</span>
+          <span className="mt-1.5 block text-sm font-semibold text-ink-soft">dari target {goal.targetDisplay}</span>
         </div>
         {reached ? (
           <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
             🎉 Target tercapai! Dana bisa ditarik.
           </p>
         ) : (
-          <p className="mt-3 text-sm font-semibold text-gold-deep">Tinggal {rupiah(goal.targetAmount - collected)} lagi!</p>
+          <p className="mt-3 font-display text-base font-semibold text-gold-deep">
+            Tinggal {rupiah(goal.targetAmount - collected)} lagi!
+          </p>
         )}
       </div>
 
       {/* Members */}
-      <Card className="mt-6 p-4">
+      <Card className="mt-6 p-5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-ink">Anggota</span>
-          <MemberAvatars members={members} size={30} />
+          <span className="font-display text-base font-semibold text-ink">Anggota</span>
+          <MemberAvatars members={members} size={32} />
         </div>
         {members.length > 0 && (
-          <ul className="mt-3 flex flex-col gap-2">
+          <ul className="mt-4 flex flex-col gap-3">
             {members.map((m) => (
               <li key={m.id} className="flex items-center gap-3">
-                <span
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-                  style={{ background: avatarColor(m.avatarSeed) }}
-                >
-                  {initials(m.displayName)}
-                </span>
-                <span className="flex-1 text-sm font-semibold text-ink">{m.displayName}</span>
-                <span className="text-sm text-ink-soft">{rupiah(m.totalDeposited)}</span>
+                <Avatar seed={m.avatarSeed} size={36} />
+                <span className="flex-1 text-sm font-bold text-ink">{m.displayName}</span>
+                <span className="text-sm font-semibold text-ink-soft">{rupiah(m.totalDeposited)}</span>
               </li>
             ))}
           </ul>
@@ -166,30 +163,27 @@ export default function GoalPage() {
       {/* Deposit sheet */}
       {sheet && (
         <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4" onClick={() => setSheet(false)}>
-          <div className="card w-full max-w-md rounded-card p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-extrabold text-ink">Mau setor berapa?</h2>
-            <div className="card mt-4 rounded-btn">
+          <div className="rounded-card border border-line bg-surface p-6 shadow-card-lg w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-display text-xl font-semibold text-ink">Mau setor berapa?</h2>
+            <div className="mt-4 flex items-baseline gap-2 rounded-[14px] border-[1.5px] border-line bg-[#FFFCF4] px-4 py-3.5 transition focus-within:border-gold focus-within:shadow-[0_0_0_4px_rgba(244,183,64,0.12)]">
+              <span className="font-display text-lg font-semibold text-ink-soft">Rp</span>
               <input
                 autoFocus
-                value={amount === "" ? "" : amount}
+                value={amount === "" ? "" : amount.toLocaleString("id-ID")}
                 onChange={(e) => {
                   const v = e.target.value.replace(/[^0-9]/g, "");
                   setAmount(v === "" ? "" : Number(v));
                 }}
                 inputMode="numeric"
-                placeholder="100000"
-                className="w-full rounded-btn bg-transparent px-4 py-3.5 text-ink outline-none placeholder:text-ink-soft/50"
+                placeholder="100.000"
+                className="w-full bg-transparent font-display text-2xl font-bold text-gold-deep outline-none placeholder:text-ink-soft/40"
               />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {[50_000, 100_000, 250_000, 500_000].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setAmount(p)}
-                  className="rounded-full bg-gold-soft px-3 py-1.5 text-xs font-semibold text-gold-deep hover:bg-gold/30"
-                >
+                <Chip key={p} active={amount === p} onClick={() => setAmount(p)}>
                   {rupiah(p)}
-                </button>
+                </Chip>
               ))}
             </div>
             <PillButton

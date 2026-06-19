@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
+  --font-display: "Fredoka", var(--font-sans);
   --bg: #fbfaf7;
   --surface: #ffffff;
   --gold: #f4b740;

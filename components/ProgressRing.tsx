@@ -34,7 +34,12 @@ export function ProgressRing({
         />
       </svg>
       {showLabel && (
-        <span className="absolute text-sm font-extrabold text-ink">{clamped}%</span>
+        <span
+          className="absolute font-display font-bold text-gold-deep"
+          style={{ fontSize: size * 0.26 }}
+        >
+          {clamped}%
+        </span>
       )}
     </div>
   );

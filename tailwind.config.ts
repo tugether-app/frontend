@@ -24,7 +24,8 @@ const config: Config = {
         blush: "#F6B6A0",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "Nunito", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Fredoka", "system-ui", "sans-serif"],
       },
       borderRadius: {
         card: "1.5rem", // 24px
@@ -37,6 +38,12 @@ const config: Config = {
         // Soft, warm, diffuse. Objects feel "holdable".
         soft: "0 1px 2px rgba(43,38,34,0.04), 0 16px 36px -18px rgba(224,154,30,0.28)",
         jar: "0 10px 40px -12px rgba(224,154,30,0.35)",
+        // Chunky 3D "candy" button: solid gold-deep base + warm ambient.
+        candy: "0 5px 0 #E09A1E, 0 8px 18px rgba(224,154,30,0.25)",
+        "candy-sm": "0 4px 0 #E09A1E",
+        "candy-active": "0 2px 0 #E09A1E",
+        card: "0 10px 30px rgba(224,154,30,0.06)",
+        "card-lg": "0 12px 32px rgba(224,154,30,0.08)",
       },
     },
   },
