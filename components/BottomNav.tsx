@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/lib/i18n/provider";
 
-// Floating mobile bottom nav. Per UI reference (home / buat / aktivitas / profil).
+// Floating mobile bottom nav: Home / Create / Profile.
 
-type Item = { href: string; label: string; icon: (active: boolean) => React.ReactNode };
+type Item = { href: string; labelKey: string; icon: (active: boolean) => React.ReactNode };
 
 const ITEMS: Item[] = [
   {
     href: "/",
-    label: "Home",
+    labelKey: "nav.home",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path
@@ -25,7 +26,7 @@ const ITEMS: Item[] = [
   },
   {
     href: "/create",
-    label: "Create",
+    labelKey: "nav.create",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="8" stroke={a ? "#E09A1E" : "#8A8178"} strokeWidth="1.8" />
@@ -35,7 +36,7 @@ const ITEMS: Item[] = [
   },
   {
     href: "/profile",
-    label: "Profile",
+    labelKey: "nav.profile",
     icon: (a) => (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="9" r="3.4" stroke={a ? "#E09A1E" : "#8A8178"} strokeWidth="1.8" />
@@ -52,6 +53,7 @@ const ITEMS: Item[] = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2">
@@ -73,7 +75,7 @@ export function BottomNav() {
               <span
                 className={`text-[11px] font-extrabold transition-colors ${active ? "text-gold-deep" : "text-ink-soft"}`}
               >
-                {it.label}
+                {t(it.labelKey)}
               </span>
             </Link>
           );

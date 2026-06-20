@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
+import { I18nProvider } from "@/lib/i18n/provider";
 
 // Fredoka: rounded geometric headings. Nunito: humanist body. Per UI reference.
 const fredoka = Fredoka({
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   appleWebApp: { capable: true, title: "Tugether", statusBarStyle: "default" },
-  openGraph: { title: TITLE, description: DESC, type: "website", images: ["/og.png"] },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESC, images: ["/og.png"] },
+  openGraph: { title: TITLE, description: DESC, type: "website" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
 };
 
 export const viewport: Viewport = {
@@ -44,7 +45,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <div className="aurora" aria-hidden />
-        <ToastProvider>{children}</ToastProvider>
+        <I18nProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </I18nProvider>
       </body>
     </html>
   );

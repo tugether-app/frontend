@@ -2,11 +2,13 @@
 
 import { PillButton } from "./ui";
 import { useToast } from "./Toast";
+import { useI18n } from "@/lib/i18n/provider";
 
 // Copy/share the invite link. Uses native share sheet on mobile when available.
 
-export function ShareButton({ slug, label = "Invite friends" }: { slug: string; label?: string }) {
+export function ShareButton({ slug, label }: { slug: string; label?: string }) {
   const toast = useToast();
+  const { t } = useI18n();
 
   async function share() {
     const base = typeof window !== "undefined" ? window.location.origin : "";
@@ -18,7 +20,7 @@ export function ShareButton({ slug, label = "Invite friends" }: { slug: string; 
         return;
       }
       await navigator.clipboard.writeText(url);
-      toast("Link copied", "success");
+      toast(t("share.copied"), "success");
     } catch {
       // user cancelled the share sheet; ignore
     }
@@ -26,7 +28,7 @@ export function ShareButton({ slug, label = "Invite friends" }: { slug: string; 
 
   return (
     <PillButton variant="light" onClick={share} className="w-full">
-      <span aria-hidden>🔗</span> {label}
+      <span aria-hidden>🔗</span> {label ?? t("share.invite")}
     </PillButton>
   );
 }

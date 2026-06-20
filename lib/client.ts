@@ -17,6 +17,8 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  listGoals: () => call<Goal[]>("/api/goals"),
+
   createGoal: (input: { name: string; targetAmount: number; creatorAddr?: string }) =>
     call<Goal>("/api/goals", { method: "POST", body: JSON.stringify(input) }),
 

@@ -1,12 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import type { Goal } from "@/lib/types";
 import { progressPct, money } from "@/lib/format";
+import { useI18n } from "@/lib/i18n/provider";
 import { ProgressRing } from "./ProgressRing";
 import { MemberAvatars } from "./MemberAvatars";
 
 // Goal summary card (reference "ring" variant).
 
 export function GoalCard({ goal }: { goal: Goal }) {
+  const { t } = useI18n();
   const pct = progressPct(goal);
   const reached = goal.status !== "open";
 
@@ -18,7 +22,7 @@ export function GoalCard({ goal }: { goal: Goal }) {
             <h3 className="truncate font-display text-xl font-semibold text-ink">{goal.name}</h3>
             {reached && (
               <span className="mt-1 inline-block rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-bold text-success">
-                Reached
+                {t("dash.reached")}
               </span>
             )}
           </div>
@@ -28,13 +32,13 @@ export function GoalCard({ goal }: { goal: Goal }) {
         <div className="mt-4 font-display text-[28px] font-bold leading-none text-gold-deep">
           {money(goal.collectedAmount)}
         </div>
-        <div className="mt-1 text-[13px] font-semibold text-ink-soft">of {goal.targetDisplay}</div>
+        <div className="mt-1 text-[13px] font-semibold text-ink-soft">{t("goal.ofGoal", { v: goal.targetDisplay })}</div>
 
         <div className="my-4 h-px bg-line" />
 
         <div className="flex items-center justify-between">
           <MemberAvatars members={goal.members} size={34} />
-          <span className="text-xs font-bold text-ink-soft">{goal.members.length} members</span>
+          <span className="text-xs font-bold text-ink-soft">{t("goal.savingTogether", { n: goal.members.length })}</span>
         </div>
       </div>
     </Link>

@@ -17,6 +17,7 @@ import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { progressPct, money } from "@/lib/format";
 import { getIdentity, type Identity } from "@/lib/identity";
+import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 
 const DEPOSITS = [25, 50, 100, 250];
@@ -25,6 +26,7 @@ const MIN_DEPOSIT = 5;
 export default function GoalPage() {
   const { slug } = useParams<{ slug: string }>();
   const toast = useToast();
+  const { t } = useI18n();
 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [phase, setPhase] = useState<"loading" | "ready" | "notfound">("loading");
@@ -91,10 +93,10 @@ export default function GoalPage() {
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
         <CoinJar pct={0} size={150} face="neutral" />
-        <h1 className="font-display text-xl font-semibold text-ink">Goal not found</h1>
-        <p className="max-w-xs text-sm font-medium text-ink-soft">The link may be wrong or the goal was closed.</p>
+        <h1 className="font-display text-xl font-semibold text-ink">{t("goal.notFound")}</h1>
+        <p className="max-w-xs text-sm font-medium text-ink-soft">{t("goal.notFoundHint")}</p>
         <Link href="/">
-          <PillButton>Back to home</PillButton>
+          <PillButton>{t("goal.backHome")}</PillButton>
         </Link>
       </main>
     );
@@ -113,7 +115,7 @@ export default function GoalPage() {
       await api.join(goal.id, { memberAddr: me.addr, displayName: me.name, avatarSeed: me.seed });
       setGoal(await api.getGoalBySlug(slug));
       setSheet(true); // jump straight into the first deposit
-      toast("You're in!", "success");
+      toast(t("goal.joined"), "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not join", "error");
     } finally {
@@ -129,7 +131,7 @@ export default function GoalPage() {
       setGoal(updated);
       setSheet(false);
       setAmount("");
-      toast("Deposit received!", "success");
+      toast(t("goal.depositOk"), "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not deposit", "error");
     } finally {
@@ -143,7 +145,7 @@ export default function GoalPage() {
     try {
       const updated = await api.withdraw(goal.id, { toAddr: me.addr });
       setGoal(updated);
-      toast("Funds withdrawn", "success");
+      toast(t("goal.withdrawOk"), "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not withdraw", "error");
     } finally {
@@ -166,13 +168,13 @@ export default function GoalPage() {
       {/* Hero */}
       <div className="mt-4 flex flex-col items-center text-center">
         <h1 className="font-display text-[26px] font-semibold tracking-tight text-ink">{goal.name}</h1>
-        <p className="mt-1 text-sm font-semibold text-ink-soft">{goal.members.length} saving together</p>
+        <p className="mt-1 text-sm font-semibold text-ink-soft">{t("goal.savingTogether", { n: goal.members.length })}</p>
         <div className="breathe mt-4">
           <CoinJar pct={pct} size={250} sparkles={isReached} />
         </div>
         <div className="mt-2">
           <CountUp value={goal.collectedAmount} className="font-display text-[40px] font-bold leading-none text-gold-deep" />
-          <span className="mt-1.5 block text-sm font-semibold text-ink-soft">of {goal.targetDisplay} goal</span>
+          <span className="mt-1.5 block text-sm font-semibold text-ink-soft">{t("goal.ofGoal", { v: goal.targetDisplay })}</span>
         </div>
         <div className="mt-4 h-3.5 w-full max-w-xs overflow-hidden rounded-full bg-gold-soft">
           <div
@@ -184,16 +186,12 @@ export default function GoalPage() {
           />
         </div>
         {isClosed ? (
-          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
-            ✅ Funds withdrawn. Goal complete.
-          </p>
+          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.withdrawn")}</p>
         ) : isReached ? (
-          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
-            🎉 Target reached! Funds can be withdrawn.
-          </p>
+          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.reached")}</p>
         ) : (
           <p className="mt-3 font-display text-base font-semibold text-gold-deep">
-            {money(goal.targetAmount - goal.collectedAmount)} to go!
+            {t("goal.toGo", { v: money(goal.targetAmount - goal.collectedAmount) })}
           </p>
         )}
       </div>
@@ -201,11 +199,11 @@ export default function GoalPage() {
       {/* Members */}
       <Card className="mt-6 p-5">
         <div className="flex items-center justify-between">
-          <span className="font-display text-base font-semibold text-ink">Members</span>
+          <span className="font-display text-base font-semibold text-ink">{t("goal.members")}</span>
           {goal.members.length > 0 && <MemberAvatars members={goal.members} size={32} />}
         </div>
         {goal.members.length === 0 ? (
-          <p className="mt-3 text-sm font-medium text-ink-soft">No one has joined yet. Invite your friends!</p>
+          <p className="mt-3 text-sm font-medium text-ink-soft">{t("goal.noMembers")}</p>
         ) : (
           <ul className="mt-4 flex flex-col gap-3">
             {goal.members.map((m) => {
@@ -218,7 +216,7 @@ export default function GoalPage() {
                   <Avatar seed={m.avatarSeed} size={36} />
                   <span className="flex-1 text-sm font-bold text-ink">
                     {m.displayName}
-                    {isMe && <span className="ml-1.5 text-[11px] font-bold text-gold-deep">(you)</span>}
+                    {isMe && <span className="ml-1.5 text-[11px] font-bold text-gold-deep">{t("goal.you")}</span>}
                   </span>
                   <span className="text-sm font-semibold text-ink-soft">{money(m.totalDeposited)}</span>
                 </li>
@@ -234,7 +232,7 @@ export default function GoalPage() {
 
       {goal.vaultAddr && (
         <p className="mt-4 text-center text-[11px] font-medium text-ink-soft/70">
-          On-chain jar: <span className="font-mono">{goal.vaultAddr.slice(0, 10)}...</span>
+          {t("goal.onchain")} <span className="font-mono">{goal.vaultAddr.slice(0, 10)}...</span>
         </p>
       )}
 
@@ -243,19 +241,19 @@ export default function GoalPage() {
         <div className="mx-auto max-w-md">
           {isClosed ? (
             <PillButton variant="light" className="w-full py-4" disabled>
-              Funds withdrawn 🎉
+              {t("goal.fundsWithdrawn")}
             </PillButton>
           ) : !joined ? (
             <PillButton onClick={join} loading={busy === "join"} className="w-full py-4">
-              Join &amp; save
+              {t("goal.join")}
             </PillButton>
           ) : goal.status === "reached" ? (
             <PillButton onClick={withdraw} loading={busy === "withdraw"} className="w-full py-4">
-              Withdraw funds
+              {t("goal.withdraw")}
             </PillButton>
           ) : (
             <PillButton onClick={() => setSheet(true)} className="w-full py-4">
-              Add deposit
+              {t("goal.addDeposit")}
             </PillButton>
           )}
         </div>
@@ -271,7 +269,7 @@ export default function GoalPage() {
           onClick={() => setSheet(false)}
         >
           <div className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-display text-xl font-semibold text-ink">How much?</h2>
+            <h2 className="font-display text-xl font-semibold text-ink">{t("goal.howMuch")}</h2>
             <div className="mt-4 flex items-baseline gap-2 rounded-[14px] border-[1.5px] border-line bg-[#FFFCF4] px-4 py-3.5 transition focus-within:border-gold focus-within:shadow-[0_0_0_4px_rgba(244,183,64,0.12)]">
               <span className="font-display text-lg font-semibold text-ink-soft">$</span>
               <input
@@ -299,11 +297,9 @@ export default function GoalPage() {
               disabled={typeof amount !== "number" || amount < MIN_DEPOSIT}
               className="mt-5 w-full py-4"
             >
-              Deposit {typeof amount === "number" ? money(amount) : ""}
+              {t("goal.deposit")} {typeof amount === "number" ? money(amount) : ""}
             </PillButton>
-            <p className="mt-2 text-center text-[11px] font-medium text-ink-soft/70">
-              Chip in from any asset. It all merges into one jar.
-            </p>
+            <p className="mt-2 text-center text-[11px] font-medium text-ink-soft/70">{t("goal.depositNote")}</p>
           </div>
         </div>
       )}
