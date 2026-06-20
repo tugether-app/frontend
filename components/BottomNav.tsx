@@ -34,21 +34,6 @@ const ITEMS: Item[] = [
     ),
   },
   {
-    href: "/goals",
-    label: "My Goals",
-    icon: (a) => (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M4 12h4l2-5 4 10 2-5h4"
-          stroke={a ? "#E09A1E" : "#8A8178"}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
     href: "/profile",
     label: "Profile",
     icon: (a) => (

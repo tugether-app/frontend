@@ -26,9 +26,9 @@ export default function ProfilePage() {
       </Card>
 
       <div className="mt-6 flex flex-col gap-3">
-        <Link href="/goals">
+        <Link href="/">
           <PillButton variant="light" className="w-full">
-            My Goals <span aria-hidden>→</span>
+            My goals <span aria-hidden>→</span>
           </PillButton>
         </Link>
         <PillButton variant="ghost" className="w-full">Sign out</PillButton>

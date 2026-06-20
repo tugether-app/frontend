@@ -1,107 +1,87 @@
 import Link from "next/link";
-import { Badge, PillButton } from "@/components/ui";
+import { PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
+import { Avatar } from "@/components/Avatar";
 import { CoinJar } from "@/components/CoinJar";
+import { GoalCard } from "@/components/GoalCard";
 import { BottomNav } from "@/components/BottomNav";
+import { listGoals } from "@/lib/db";
+import { money } from "@/lib/format";
 
-const ICON = "#E09A1E";
+// Home = dashboard: a quick overview of your goals + a clear way to start one.
+// The marketing splash lives at /welcome.
+export const dynamic = "force-dynamic";
 
-const STEPS = [
-  {
-    title: "Set a goal",
-    desc: "Give it a name and a target",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="8.5" stroke={ICON} strokeWidth="1.9" />
-        <circle cx="12" cy="12" r="4" stroke={ICON} strokeWidth="1.9" />
-        <circle cx="12" cy="12" r="1" fill={ICON} />
-      </svg>
-    ),
-  },
-  {
-    title: "Invite friends",
-    desc: "Share one link, anyone can join",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M9.5 14.5l5-5M8 11l-2 2a3.5 3.5 0 005 5l2-2M16 13l2-2a3.5 3.5 0 00-5-5l-2 2" stroke={ICON} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-  },
-  {
-    title: "Save together",
-    desc: "Chip in from anywhere, watch it fill up",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="13" r="6.5" stroke={ICON} strokeWidth="1.9" />
-        <path d="M12 4v3" stroke={ICON} strokeWidth="1.9" strokeLinecap="round" />
-        <path d="M12 11c-1.2-1.6-3.6-.4-3.6 1.4 0 1.6 2 2.8 3.6 4 1.6-1.2 3.6-2.4 3.6-4 0-1.8-2.4-3-3.6-1.4z" fill={ICON} />
-      </svg>
-    ),
-  },
-];
+export default async function Home() {
+  const goals = await listGoals();
+  const totalSaved = goals.reduce((s, g) => s + g.collectedAmount, 0);
+  const reached = goals.filter((g) => g.status !== "open").length;
 
-export default function Home() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
       <header className="flex items-center justify-between">
         <WordMark />
+        <Link href="/profile" aria-label="Profile" className="rounded-full ring-2 ring-line transition hover:ring-gold">
+          <Avatar seed="you" size={36} />
+        </Link>
       </header>
 
-      {/* Hero jar */}
-      <div className="rise-in mt-6 flex flex-col items-center text-center">
-        <Badge>
-          <span aria-hidden>✨</span> no wallet, just email
-        </Badge>
-        <div className="float-slow mt-4">
-          <CoinJar pct={68} size={220} face="happy" />
-        </div>
-        <h1 className="mt-2 font-display text-[2.6rem] font-bold leading-[1.04] tracking-tight text-ink">
-          Save together,
-          <br />
-          <span className="text-gold-deep">reach the goal.</span>
+      {/* Greeting */}
+      <div className="rise-in mt-6">
+        <h1 className="font-display text-[28px] font-semibold leading-tight tracking-tight text-ink">
+          Hi there <span aria-hidden>👋</span>
         </h1>
-        <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-ink-soft">
-          Pool money toward one shared goal. Group gifts, trip funds, community
-          pots. Chip in from any asset, all merged into one jar.
-        </p>
+        <p className="mt-1 font-medium text-ink-soft">Here's how your goals are going.</p>
       </div>
 
-      {/* How it works */}
-      <div className="stagger mt-8 grid grid-cols-3 gap-3">
-        {STEPS.map((s, i) => (
+      {/* Stats */}
+      <div className="stagger mt-5 grid grid-cols-3 gap-3">
+        {[
+          { label: "Saved", value: money(totalSaved) },
+          { label: "Goals", value: String(goals.length) },
+          { label: "Reached", value: String(reached) },
+        ].map((s, i) => (
           <div
-            key={s.title}
+            key={s.label}
             style={{ "--i": i } as React.CSSProperties}
-            className="rounded-card border border-line bg-surface px-2 py-4 text-center shadow-card"
+            className="rounded-card border border-line bg-surface px-3 py-4 text-center shadow-card"
           >
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] bg-gold-soft">
-              {s.icon}
-            </div>
-            <span className="mt-2.5 block font-display text-sm font-semibold text-ink">{s.title}</span>
-            <span className="mt-1 block text-[11px] leading-snug text-ink-soft">{s.desc}</span>
+            <div className="font-display text-xl font-bold text-gold-deep">{s.value}</div>
+            <div className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-ink-soft">{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* CTA */}
-      <div className="mt-auto flex flex-col items-center gap-3 pt-8">
-        <Link href="/create" className="w-full">
-          <PillButton className="w-full py-4 text-base">
-            Start a goal <span aria-hidden>→</span>
-          </PillButton>
-        </Link>
-        <Link href="/goals" className="w-full">
-          <PillButton variant="light" className="w-full py-3.5">
-            View my goals
-          </PillButton>
-        </Link>
-        <p className="text-xs text-ink-soft/80">No seed phrase. Nothing to install.</p>
-      </div>
+      {/* Start CTA */}
+      <Link href="/create" className="mt-5 block">
+        <PillButton className="w-full py-4 text-base">
+          Start a goal <span aria-hidden>→</span>
+        </PillButton>
+      </Link>
 
-      <footer className="mt-10 flex flex-col items-center gap-1 border-t border-line pt-6 text-center">
-        <p className="text-xs font-semibold text-ink-soft/70">Built for UXmaxx Hackathon · 2026</p>
-        <p className="text-[11px] font-medium text-ink-soft/60">Powered by Particle Network · Magic · ZeroDev · Arbitrum</p>
-      </footer>
+      {/* Your goals */}
+      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Your goals</h2>
+      {goals.length === 0 ? (
+        <div className="mt-4 flex flex-col items-center rounded-card border border-dashed border-[#E6DECF] bg-surface p-10 text-center">
+          <CoinJar pct={0} size={150} face="neutral" />
+          <p className="mt-3 font-display text-xl font-semibold text-ink">No goals yet</p>
+          <p className="mt-2 max-w-xs text-sm font-medium text-ink-soft">
+            Start your first one. The jar is waiting to be filled.
+          </p>
+        </div>
+      ) : (
+        <div className="stagger mt-4 flex flex-col gap-3">
+          {goals.map((g, i) => (
+            <div key={g.id} style={{ "--i": i } as React.CSSProperties}>
+              <GoalCard goal={g} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Link href="/welcome" className="mt-8 text-center text-xs font-bold text-ink-soft/70 hover:text-ink">
+        How Tugether works
+      </Link>
 
       <BottomNav />
     </main>
