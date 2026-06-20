@@ -223,6 +223,62 @@ a {
   animation: page-in 0.42s var(--ease-out) both;
 }
 
+/* Bottom sheet: backdrop fades, panel slides up with a spring. */
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.backdrop-in {
+  animation: backdrop-in 0.25s ease both;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-up {
+  animation: sheet-up 0.36s var(--ease-spring) both;
+}
+
+/* Gentle idle "breathing" for the hero jar. */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.015);
+  }
+}
+.breathe {
+  animation: breathe 4.5s ease-in-out infinite;
+}
+
+/* Pop used when a value/badge updates. */
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pop {
+  animation: pop 0.4s var(--ease-spring);
+}
+
 @keyframes toast-in {
   from {
     transform: translateY(16px) scale(0.92);

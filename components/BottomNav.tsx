@@ -77,11 +77,17 @@ export function BottomNav() {
             <Link
               key={it.href}
               href={it.href}
-              className="flex flex-1 flex-col items-center gap-1"
+              className="flex flex-1 flex-col items-center gap-1 py-1"
               aria-current={active ? "page" : undefined}
             >
-              {it.icon(active)}
-              <span className={`text-[11px] font-extrabold ${active ? "text-gold-deep" : "text-ink-soft"}`}>
+              <span
+                className={`transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${active ? "-translate-y-0.5 scale-110" : "scale-100"}`}
+              >
+                {it.icon(active)}
+              </span>
+              <span
+                className={`text-[11px] font-extrabold transition-colors ${active ? "text-gold-deep" : "text-ink-soft"}`}
+              >
                 {it.label}
               </span>
             </Link>

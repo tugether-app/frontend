@@ -10,6 +10,8 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { MemberAvatars } from "@/components/MemberAvatars";
 import { Avatar } from "@/components/Avatar";
 import { Confetti } from "@/components/Confetti";
+import { CountUp } from "@/components/CountUp";
+import { WordMark } from "@/components/BrandIcon";
 import { ShareButton } from "@/components/ShareButton";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
@@ -58,6 +60,19 @@ export default function GoalPage() {
     }
     prevStatus.current = status;
   }, [goal?.status]);
+
+  // Sheet: lock body scroll + close on Escape.
+  useEffect(() => {
+    if (!sheet) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheet(false);
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [sheet]);
 
   if (phase === "loading") {
     return (
@@ -142,6 +157,9 @@ export default function GoalPage() {
 
       <header className="flex items-center justify-between">
         <BackButton />
+        <Link href="/" aria-label="Home">
+          <WordMark size={26} />
+        </Link>
         <ProgressRing pct={pct} size={44} stroke={6} />
       </header>
 
@@ -149,11 +167,11 @@ export default function GoalPage() {
       <div className="mt-4 flex flex-col items-center text-center">
         <h1 className="font-display text-[26px] font-semibold tracking-tight text-ink">{goal.name}</h1>
         <p className="mt-1 text-sm font-semibold text-ink-soft">{goal.members.length} saving together</p>
-        <div className="mt-4">
+        <div className="breathe mt-4">
           <CoinJar pct={pct} size={250} sparkles={isReached} />
         </div>
         <div className="mt-2">
-          <span className="font-display text-[40px] font-bold leading-none text-gold-deep">{money(goal.collectedAmount)}</span>
+          <CountUp value={goal.collectedAmount} className="font-display text-[40px] font-bold leading-none text-gold-deep" />
           <span className="mt-1.5 block text-sm font-semibold text-ink-soft">of {goal.targetDisplay} goal</span>
         </div>
         <div className="mt-4 h-3.5 w-full max-w-xs overflow-hidden rounded-full bg-gold-soft">
@@ -246,13 +264,13 @@ export default function GoalPage() {
       {/* Deposit sheet */}
       {sheet && (
         <div
-          className="fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4"
+          className="backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4"
           role="dialog"
           aria-modal="true"
           aria-label="Add deposit"
           onClick={() => setSheet(false)}
         >
-          <div className="w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-display text-xl font-semibold text-ink">How much?</h2>
             <div className="mt-4 flex items-baseline gap-2 rounded-[14px] border-[1.5px] border-line bg-[#FFFCF4] px-4 py-3.5 transition focus-within:border-gold focus-within:shadow-[0_0_0_4px_rgba(244,183,64,0.12)]">
               <span className="font-display text-lg font-semibold text-ink-soft">$</span>

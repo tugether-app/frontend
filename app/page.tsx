@@ -90,8 +90,10 @@ export default function Home() {
             Start a goal <span aria-hidden>→</span>
           </PillButton>
         </Link>
-        <Link href="/goals" className="text-sm font-semibold text-ink-soft hover:text-ink">
-          View my goals
+        <Link href="/goals" className="w-full">
+          <PillButton variant="light" className="w-full py-3.5">
+            View my goals
+          </PillButton>
         </Link>
         <p className="text-xs text-ink-soft/80">No seed phrase. Nothing to install.</p>
       </div>
