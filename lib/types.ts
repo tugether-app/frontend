@@ -20,6 +20,7 @@ export interface Goal {
   targetAmount: number; // in settlement units
   collectedAmount: number;
   status: GoalStatus;
+  category?: string;
   vaultAddr?: string;
   creatorAddr?: string;
   createdAt: string;

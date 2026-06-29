@@ -51,6 +51,7 @@ export async function getBySlug(slug: string): Promise<Goal> {
 export async function createGoal(input: {
   name: string;
   targetAmount: number;
+  category?: string;
   creatorAddr?: string;
 }): Promise<Goal> {
   if (!input.name || input.name.trim().length < 3)
@@ -69,6 +70,7 @@ export async function createGoal(input: {
     targetAmount: input.targetAmount,
     collectedAmount: 0,
     status: "open",
+    category: input.category ?? "custom",
     vaultAddr,
     creatorAddr: creator,
     createdAt: new Date().toISOString(),

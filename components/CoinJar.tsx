@@ -67,7 +67,8 @@ export function CoinJar({
     >
       {showCoin && (
         <div className="coin-drop pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2">
-          <Coin size={size * 0.17} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/art/coin.png" alt="" aria-hidden style={{ width: size * 0.2, height: "auto" }} draggable={false} />
         </div>
       )}
 
@@ -208,17 +209,5 @@ function Face({ mood }: { mood: JarFace }) {
         <path d="M89 104 Q100 118 111 104 Q100 110 89 104 Z" fill="#2B2622" />
       )}
     </g>
-  );
-}
-
-function Coin({ size = 36 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 40 40" width={size} height={size}>
-      <circle cx="20" cy="20" r="18" fill="#FFD976" stroke="#E09A1E" strokeWidth="3" />
-      <path
-        d="M20 13 c-3 -4 -9 -1 -9 4 c0 4 5 7 9 10 c4 -3 9 -6 9 -10 c0 -5 -6 -8 -9 -4 Z"
-        fill="#E09A1E"
-      />
-    </svg>
   );
 }

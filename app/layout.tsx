@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   appleWebApp: { capable: true, title: "Tugether", statusBarStyle: "default" },
-  openGraph: { title: TITLE, description: DESC, type: "website" },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESC },
+  openGraph: { title: TITLE, description: DESC, type: "website", images: ["/og.png"] },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESC, images: ["/og.png"] },
 };
 
 export const viewport: Viewport = {

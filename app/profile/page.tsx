@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
 import { Card, PillButton } from "@/components/ui";
@@ -6,6 +7,8 @@ import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { BottomNav } from "@/components/BottomNav";
 import { useI18n } from "@/lib/i18n/provider";
+
+const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member", "badge-goal-completed", "badge-super-saver"];
 
 // Profile stub. BE pass: real Magic session (name, email), sign out.
 
@@ -44,7 +47,23 @@ export default function ProfilePage() {
         <PillButton variant="ghost" className="w-full">{t("profile.signOut")}</PillButton>
       </div>
 
-      <p className="mt-auto pt-8 text-center text-xs font-semibold text-ink-soft/70">{t("profile.tagline")}</p>
+      <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
+      <Card className="mt-3 p-4">
+        <div className="flex items-center justify-between gap-2">
+          {BADGES.map((b, i) => (
+            <img
+              key={b}
+              src={`/art/badge/${b}.png`}
+              alt=""
+              aria-hidden
+              className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
+              draggable={false}
+            />
+          ))}
+        </div>
+      </Card>
+
+      <p className="mt-8 text-center text-xs font-semibold text-ink-soft/70">{t("profile.tagline")}</p>
 
       <BottomNav />
     </main>

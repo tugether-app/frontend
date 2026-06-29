@@ -1,8 +1,10 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
 import type { Goal } from "@/lib/types";
 import { progressPct, money } from "@/lib/format";
+import { catIcon } from "@/lib/categories";
 import { useI18n } from "@/lib/i18n/provider";
 import { ProgressRing } from "./ProgressRing";
 import { MemberAvatars } from "./MemberAvatars";
@@ -19,7 +21,10 @@ export function GoalCard({ goal }: { goal: Goal }) {
       <div className="rounded-card border border-line bg-surface p-6 shadow-card-lg transition-transform duration-150 hover:-translate-y-0.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate font-display text-xl font-semibold text-ink">{goal.name}</h3>
+            <div className="flex items-center gap-2">
+              <img src={catIcon(goal.category)} alt="" aria-hidden className="h-6 w-6 shrink-0 select-none" draggable={false} />
+              <h3 className="truncate font-display text-xl font-semibold text-ink">{goal.name}</h3>
+            </div>
             {reached && (
               <span className="mt-1 inline-block rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-bold text-success">
                 {t("dash.reached")}

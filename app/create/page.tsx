@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+/* eslint-disable @next/next/no-img-element */
 import { PillButton, Card, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
-import { CoinJar } from "@/components/CoinJar";
+import { Mascot } from "@/components/Mascot";
 import { ShareButton } from "@/components/ShareButton";
 import { StepDots } from "@/components/Stepper";
 import { useToast } from "@/components/Toast";
@@ -12,6 +13,7 @@ import { api } from "@/lib/client";
 import { money } from "@/lib/format";
 import { getIdentity, type Identity } from "@/lib/identity";
 import { useI18n } from "@/lib/i18n/provider";
+import { CATEGORIES, catIcon } from "@/lib/categories";
 
 // Create flow. Name + target -> POST /api/goals (deploys GoalVault), auto-joins
 // the creator, then shows the share step with the returned invite slug.
@@ -22,6 +24,7 @@ const MIN_NAME = 3;
 
 export default function CreatePage() {
   const [name, setName] = useState("");
+  const [category, setCategory] = useState<string>("custom");
   const [target, setTarget] = useState<number | "">("");
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,7 +44,7 @@ export default function CreatePage() {
     if (!valid || typeof target !== "number" || !me) return;
     setLoading(true);
     try {
-      const goal = await api.createGoal({ name: name.trim(), targetAmount: target, creatorAddr: me.addr });
+      const goal = await api.createGoal({ name: name.trim(), targetAmount: target, category, creatorAddr: me.addr });
       // Auto-join the creator so they're a member of their own goal.
       await api.join(goal.id, { memberAddr: me.addr, displayName: me.name, avatarSeed: me.seed }).catch(() => {});
       setCreatedSlug(goal.joinSlug);
@@ -60,7 +63,7 @@ export default function CreatePage() {
           <span className="font-display text-lg font-semibold text-ink">{t("create.allSet")}</span>
         </header>
         <div className="rise-in mt-8 flex flex-1 flex-col items-center text-center">
-          <CoinJar pct={0} size={180} face="happy" />
+          <Mascot pose="celebrate" size={180} />
           <h1 className="mt-4 font-display text-[26px] font-semibold text-ink">{t("create.created")}</h1>
           <p className="mt-2 max-w-xs font-medium text-ink-soft">{t("create.createdHint")}</p>
           <Card className="mt-6 w-full p-5 text-left">
@@ -107,6 +110,28 @@ export default function CreatePage() {
             <p className="mt-1.5 text-xs font-semibold text-blush">{t("create.nameErr", { n: MIN_NAME })}</p>
           )}
         </label>
+
+        <div>
+          <span className="mb-2 block text-sm font-bold text-ink-soft">{t("create.category")}</span>
+          <div className="grid grid-cols-5 gap-2">
+            {CATEGORIES.map((c) => {
+              const active = category === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCategory(c)}
+                  className={`flex flex-col items-center gap-1 rounded-2xl border-[1.5px] px-1 py-2 transition active:scale-95 ${
+                    active ? "border-gold bg-gold-soft" : "border-line bg-surface hover:border-gold/50"
+                  }`}
+                >
+                  <img src={catIcon(c)} alt="" aria-hidden className="h-8 w-8 select-none" draggable={false} />
+                  <span className="text-[9px] font-bold text-ink-soft">{t(`cat.${c}`)}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <label className="block">
           <span className="mb-2 block text-sm font-bold text-ink-soft">{t("create.target")}</span>

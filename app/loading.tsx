@@ -1,11 +1,9 @@
-import { CoinJar } from "@/components/CoinJar";
+import { Mascot } from "@/components/Mascot";
 
 export default function Loading() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4">
-      <div className="float-slow">
-        <CoinJar pct={40} size={140} />
-      </div>
+      <Mascot pose="loading" size={140} float />
       <p className="text-sm font-semibold text-ink-soft">One sec...</p>
     </main>
   );

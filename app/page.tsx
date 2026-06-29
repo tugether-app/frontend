@@ -6,6 +6,7 @@ import { PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { CoinJar } from "@/components/CoinJar";
+import { Mascot } from "@/components/Mascot";
 import { GoalCard } from "@/components/GoalCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
@@ -102,7 +103,7 @@ export default function Home() {
         </div>
       ) : goals.length === 0 ? (
         <div className="mt-4 flex flex-col items-center rounded-card border border-dashed border-[#E6DECF] bg-surface p-10 text-center">
-          <CoinJar pct={0} size={150} face="neutral" />
+          <Mascot pose="empty" size={150} />
           <p className="mt-3 font-display text-xl font-semibold text-ink">{t("dash.noGoals")}</p>
           <p className="mt-2 max-w-xs text-sm font-medium text-ink-soft">{t("dash.noGoalsHint")}</p>
         </div>

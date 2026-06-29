@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Card, PillButton, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import { CoinJar } from "@/components/CoinJar";
+import { Mascot } from "@/components/Mascot";
 import { ProgressRing } from "@/components/ProgressRing";
 import { MemberAvatars } from "@/components/MemberAvatars";
 import { Avatar } from "@/components/Avatar";
@@ -16,6 +17,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { progressPct, money } from "@/lib/format";
+import { catIcon } from "@/lib/categories";
 import { getIdentity, type Identity } from "@/lib/identity";
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
@@ -79,9 +81,7 @@ export default function GoalPage() {
   if (phase === "loading") {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center px-6 pt-16">
-        <div className="float-slow">
-          <CoinJar pct={35} size={200} />
-        </div>
+        <Mascot pose="loading" size={170} float />
         <div className="mt-6 h-7 w-44 overflow-hidden rounded-full bg-gold-soft/70 shimmer" />
         <div className="mt-3 h-3.5 w-56 overflow-hidden rounded-full bg-gold-soft/60 shimmer" />
         <div className="mt-8 h-24 w-full overflow-hidden rounded-card bg-gold-soft/40 shimmer" />
@@ -92,7 +92,7 @@ export default function GoalPage() {
   if (phase === "notfound" || !goal) {
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
-        <CoinJar pct={0} size={150} face="neutral" />
+        <Mascot pose="sad" size={160} />
         <h1 className="font-display text-xl font-semibold text-ink">{t("goal.notFound")}</h1>
         <p className="max-w-xs text-sm font-medium text-ink-soft">{t("goal.notFoundHint")}</p>
         <Link href="/">
@@ -167,7 +167,11 @@ export default function GoalPage() {
 
       {/* Hero */}
       <div className="mt-4 flex flex-col items-center text-center">
-        <h1 className="font-display text-[26px] font-semibold tracking-tight text-ink">{goal.name}</h1>
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={catIcon(goal.category)} alt="" aria-hidden className="h-7 w-7 select-none" draggable={false} />
+          <h1 className="font-display text-[26px] font-semibold tracking-tight text-ink">{goal.name}</h1>
+        </div>
         <p className="mt-1 text-sm font-semibold text-ink-soft">{t("goal.savingTogether", { n: goal.members.length })}</p>
         <div className="breathe mt-4">
           <CoinJar pct={pct} size={250} sparkles={isReached} />
@@ -203,7 +207,11 @@ export default function GoalPage() {
           {goal.members.length > 0 && <MemberAvatars members={goal.members} size={32} />}
         </div>
         {goal.members.length === 0 ? (
-          <p className="mt-3 text-sm font-medium text-ink-soft">{t("goal.noMembers")}</p>
+          <div className="mt-2 flex flex-col items-center text-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/art/state/empty-members.png" alt="" aria-hidden className="h-28 w-auto select-none" draggable={false} />
+            <p className="text-sm font-medium text-ink-soft">{t("goal.noMembers")}</p>
+          </div>
         ) : (
           <ul className="mt-4 flex flex-col gap-3">
             {goal.members.map((m) => {
