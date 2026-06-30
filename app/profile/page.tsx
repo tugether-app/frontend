@@ -50,6 +50,11 @@ export default function ProfilePage() {
             {t("profile.myGoals")} <span aria-hidden>→</span>
           </PillButton>
         </Link>
+        <Link href="/activity">
+          <PillButton variant="light" className="w-full">
+            {t("profile.activity")} <span aria-hidden>→</span>
+          </PillButton>
+        </Link>
         <Link href="/settings">
           <PillButton variant="light" className="w-full">
             {t("profile.settings")} <span aria-hidden>→</span>

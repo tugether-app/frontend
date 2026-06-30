@@ -34,3 +34,15 @@ export interface Deposit {
   amount: number;
   depositTx: string;
 }
+
+export type EventType = "created" | "joined" | "deposited" | "reached" | "withdrawn";
+
+export interface ActivityEvent {
+  id: string;
+  type: EventType;
+  goalSlug: string;
+  goalName: string;
+  actor: string; // display name (empty for goal-level events)
+  amount?: number;
+  at: string; // ISO timestamp
+}

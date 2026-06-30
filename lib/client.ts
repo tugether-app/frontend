@@ -1,4 +1,4 @@
-import type { Goal, Member } from "./types";
+import type { ActivityEvent, Goal, Member } from "./types";
 
 // Typed fetch wrappers for client components. Throws Error(message) on failure
 // (message comes from the API's { error: { code, message } } shape).
@@ -18,6 +18,8 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   listGoals: () => call<Goal[]>("/api/goals"),
+
+  listActivity: () => call<ActivityEvent[]>("/api/activity"),
 
   createGoal: (input: { name: string; targetAmount: number; category?: string; creatorAddr?: string }) =>
     call<Goal>("/api/goals", { method: "POST", body: JSON.stringify(input) }),

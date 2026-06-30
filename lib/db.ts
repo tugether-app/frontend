@@ -1,5 +1,5 @@
-import type { Goal, GoalStatus, Member } from "./types";
-import { allGoals, findById, findBySlug, insert } from "./store";
+import type { ActivityEvent, Goal, GoalStatus, Member } from "./types";
+import { allEvents, allGoals, findById, findBySlug, insert, pushEvent } from "./store";
 import { money } from "./format";
 import * as zerodev from "./sdk/zerodev";
 import * as particle from "./sdk/particle";
@@ -42,6 +42,10 @@ export async function listGoals(): Promise<Goal[]> {
   return allGoals();
 }
 
+export async function listEvents(): Promise<ActivityEvent[]> {
+  return allEvents();
+}
+
 export async function getBySlug(slug: string): Promise<Goal> {
   const g = findBySlug(slug);
   if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
@@ -76,7 +80,9 @@ export async function createGoal(input: {
     createdAt: new Date().toISOString(),
     members: [],
   };
-  return insert(goal);
+  insert(goal);
+  pushEvent({ type: "created", goalSlug: goal.joinSlug, goalName: goal.name, actor: "You" });
+  return goal;
 }
 
 export async function joinGoal(
@@ -100,6 +106,7 @@ export async function joinGoal(
     memberAddr: uaAddr,
   };
   g.members.push(member);
+  pushEvent({ type: "joined", goalSlug: g.joinSlug, goalName: g.name, actor: member.displayName });
   return member;
 }
 
@@ -124,8 +131,12 @@ export async function recordDeposit(
 
   member.totalDeposited += input.amount;
   g.collectedAmount = Math.min(g.targetAmount, g.collectedAmount + input.amount);
+  pushEvent({ type: "deposited", goalSlug: g.joinSlug, goalName: g.name, actor: member.displayName, amount: input.amount });
   const next = recomputeStatus(g);
-  if (next === "reached" && g.status !== "reached") g.reachedAt = new Date().toISOString();
+  if (next === "reached" && g.status !== "reached") {
+    g.reachedAt = new Date().toISOString();
+    pushEvent({ type: "reached", goalSlug: g.joinSlug, goalName: g.name, actor: "" });
+  }
   g.status = next;
   return g;
 }
@@ -139,5 +150,6 @@ export async function withdrawGoal(id: string, input: { toAddr: string }): Promi
   // Lock rule is enforced on-chain by the ZeroDev permission; this just sends it.
   await zerodev.withdraw({ vaultAddr: g.vaultAddr ?? "", to: input.toAddr });
   g.status = "closed";
+  pushEvent({ type: "withdrawn", goalSlug: g.joinSlug, goalName: g.name, actor: "" });
   return g;
 }

@@ -102,6 +102,7 @@ const en: Dict = {
   "profile.you": "You",
   "profile.signedIn": "signed in with email",
   "profile.myGoals": "My goals",
+  "profile.activity": "Activity",
   "profile.settings": "Settings",
   "profile.signOut": "Sign out",
   "profile.signedOut": "Signed out",
@@ -112,6 +113,19 @@ const en: Dict = {
   "settings.currency": "Currency",
   "settings.currencyNote": "More currencies coming soon.",
   "settings.done": "Done",
+
+  "activity.title": "Activity",
+  "activity.empty": "No activity yet",
+  "activity.emptyHint": "Your goals and deposits will show up here.",
+  "notif.title": "Notifications",
+  "notif.empty": "You're all caught up",
+  "notif.emptyHint": "We'll let you know when something happens.",
+
+  "ev.created": "{actor} started {goal}",
+  "ev.joined": "{actor} joined {goal}",
+  "ev.deposited": "{actor} added {amount} to {goal}",
+  "ev.reached": "{goal} reached its target 🎉",
+  "ev.withdrawn": "{goal} funds were withdrawn",
 };
 
 const id: Dict = {
@@ -206,6 +220,7 @@ const id: Dict = {
   "profile.you": "Kamu",
   "profile.signedIn": "login dengan email",
   "profile.myGoals": "Tujuanku",
+  "profile.activity": "Aktivitas",
   "profile.settings": "Pengaturan",
   "profile.signOut": "Keluar",
   "profile.signedOut": "Berhasil keluar",
@@ -216,6 +231,19 @@ const id: Dict = {
   "settings.currency": "Mata uang",
   "settings.currencyNote": "Mata uang lain segera hadir.",
   "settings.done": "Selesai",
+
+  "activity.title": "Aktivitas",
+  "activity.empty": "Belum ada aktivitas",
+  "activity.emptyHint": "Tujuan dan setoranmu akan muncul di sini.",
+  "notif.title": "Notifikasi",
+  "notif.empty": "Semua sudah terbaca",
+  "notif.emptyHint": "Kami beri tahu kalau ada yang terjadi.",
+
+  "ev.created": "{actor} membuat {goal}",
+  "ev.joined": "{actor} gabung ke {goal}",
+  "ev.deposited": "{actor} setor {amount} ke {goal}",
+  "ev.reached": "{goal} mencapai target 🎉",
+  "ev.withdrawn": "Dana {goal} sudah ditarik",
 };
 
 export const DICTS: Record<Lang, Dict> = { en, id };
