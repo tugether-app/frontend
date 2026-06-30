@@ -21,11 +21,20 @@ export function BrandIcon({ size = 32 }: { size?: number }) {
   );
 }
 
-export function WordMark({ size = 32 }: { size?: number }) {
+// Brand lockup: the real app icon + wordmark.
+export function WordMark({ size = 30 }: { size?: number }) {
   return (
-    <span className="inline-flex items-center gap-2 font-extrabold text-ink">
-      <BrandIcon size={size} />
-      <span className="text-lg tracking-tight">tugether</span>
+    <span className="inline-flex items-center gap-2">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/icon-192.png"
+        alt="Tugether"
+        width={size}
+        height={size}
+        className="rounded-[9px] shadow-sm ring-1 ring-line"
+        draggable={false}
+      />
+      <span className="font-display text-lg font-bold tracking-tight text-ink">tugether</span>
     </span>
   );
 }

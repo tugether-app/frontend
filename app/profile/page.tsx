@@ -2,11 +2,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { BottomNav } from "@/components/BottomNav";
+import { useToast } from "@/components/Toast";
 import { useI18n } from "@/lib/i18n/provider";
+import { clearIdentity } from "@/lib/identity";
 
 const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member", "badge-goal-completed", "badge-super-saver"];
 
@@ -14,6 +17,14 @@ const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member",
 
 export default function ProfilePage() {
   const { t } = useI18n();
+  const router = useRouter();
+  const toast = useToast();
+
+  function signOut() {
+    clearIdentity();
+    toast(t("profile.signedOut"), "success");
+    router.push("/welcome");
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
@@ -44,7 +55,7 @@ export default function ProfilePage() {
             {t("profile.settings")} <span aria-hidden>→</span>
           </PillButton>
         </Link>
-        <PillButton variant="ghost" className="w-full">{t("profile.signOut")}</PillButton>
+        <PillButton variant="ghost" className="w-full" onClick={signOut}>{t("profile.signOut")}</PillButton>
       </div>
 
       <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>

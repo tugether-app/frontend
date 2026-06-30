@@ -35,3 +35,8 @@ export function getIdentity(): Identity {
   window.localStorage.setItem(KEY, JSON.stringify(id));
   return id;
 }
+
+// Clear identity (sign out). A fresh one is minted on next getIdentity().
+export function clearIdentity() {
+  if (typeof window !== "undefined") window.localStorage.removeItem(KEY);
+}

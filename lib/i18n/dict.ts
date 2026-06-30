@@ -104,6 +104,7 @@ const en: Dict = {
   "profile.myGoals": "My goals",
   "profile.settings": "Settings",
   "profile.signOut": "Sign out",
+  "profile.signedOut": "Signed out",
   "profile.tagline": "No wallet, no seed phrase. Just email.",
 
   "settings.title": "Settings",
@@ -207,6 +208,7 @@ const id: Dict = {
   "profile.myGoals": "Tujuanku",
   "profile.settings": "Pengaturan",
   "profile.signOut": "Keluar",
+  "profile.signedOut": "Berhasil keluar",
   "profile.tagline": "Tanpa wallet, tanpa seed phrase. Cukup email.",
 
   "settings.title": "Pengaturan",
