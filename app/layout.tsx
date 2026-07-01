@@ -3,6 +3,10 @@ import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 import { I18nProvider } from "@/lib/i18n/provider";
+import { OfflineGate } from "@/components/OfflineGate";
+import { MaintenanceScreen } from "@/components/MaintenanceScreen";
+
+const MAINTENANCE = ["1", "true"].includes(process.env.NEXT_PUBLIC_MAINTENANCE ?? "");
 
 // Fredoka: rounded geometric headings. Nunito: humanist body. Per UI reference.
 const fredoka = Fredoka({
@@ -46,7 +50,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <div className="aurora" aria-hidden />
         <I18nProvider>
-          <ToastProvider>{children}</ToastProvider>
+          {MAINTENANCE ? <MaintenanceScreen /> : <ToastProvider>{children}</ToastProvider>}
+          <OfflineGate />
         </I18nProvider>
       </body>
     </html>

@@ -126,6 +126,12 @@ const en: Dict = {
   "ev.deposited": "{actor} added {amount} to {goal}",
   "ev.reached": "{goal} reached its target 🎉",
   "ev.withdrawn": "{goal} funds were withdrawn",
+
+  "offline.title": "You're offline",
+  "offline.hint": "Check your connection and try again.",
+  "offline.retry": "Retry",
+  "maintenance.title": "Be right back",
+  "maintenance.hint": "We're doing a quick tune-up. Please check back soon.",
 };
 
 const id: Dict = {
@@ -244,6 +250,12 @@ const id: Dict = {
   "ev.deposited": "{actor} setor {amount} ke {goal}",
   "ev.reached": "{goal} mencapai target 🎉",
   "ev.withdrawn": "Dana {goal} sudah ditarik",
+
+  "offline.title": "Kamu sedang offline",
+  "offline.hint": "Cek koneksimu lalu coba lagi.",
+  "offline.retry": "Coba lagi",
+  "maintenance.title": "Sebentar ya",
+  "maintenance.hint": "Lagi ada perbaikan singkat. Cek lagi nanti.",
 };
 
 export const DICTS: Record<Lang, Dict> = { en, id };
