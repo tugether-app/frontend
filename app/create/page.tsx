@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 /* eslint-disable @next/next/no-img-element */
 import { PillButton, Card, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
@@ -11,7 +12,7 @@ import { StepDots } from "@/components/Stepper";
 import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { money } from "@/lib/format";
-import { getIdentity, type Identity } from "@/lib/identity";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n/provider";
 import { CATEGORIES, catIcon } from "@/lib/categories";
 
@@ -29,24 +30,27 @@ export default function CreatePage() {
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
-  const [me, setMe] = useState<Identity | null>(null);
   const toast = useToast();
   const { t } = useI18n();
-
-  useEffect(() => setMe(getIdentity()), []);
+  const router = useRouter();
+  const { status, user } = useAuth();
 
   const nameOk = name.trim().length >= MIN_NAME;
   const targetOk = typeof target === "number" && target >= MIN_TARGET;
   const valid = nameOk && targetOk;
 
   async function submit() {
+    if (status === "anon") {
+      router.push("/login?next=/create");
+      return;
+    }
     setTouched(true);
-    if (!valid || typeof target !== "number" || !me) return;
+    if (!valid || typeof target !== "number" || !user) return;
     setLoading(true);
     try {
-      const goal = await api.createGoal({ name: name.trim(), targetAmount: target, category, creatorAddr: me.addr });
+      const goal = await api.createGoal({ name: name.trim(), targetAmount: target, category, creatorAddr: user.addr });
       // Auto-join the creator so they're a member of their own goal.
-      await api.join(goal.id, { memberAddr: me.addr, displayName: me.name, avatarSeed: me.seed }).catch(() => {});
+      await api.join(goal.id, { memberAddr: user.addr, displayName: user.name, avatarSeed: user.seed }).catch(() => {});
       setCreatedSlug(goal.joinSlug);
     } catch (e) {
       toast(e instanceof Error ? e.message : t("create.err"), "error");
@@ -163,8 +167,8 @@ export default function CreatePage() {
       </div>
 
       <div className="mt-auto pt-8">
-        <PillButton onClick={submit} loading={loading} className="w-full py-4 text-base">
-          {t("create.submit")} <span aria-hidden>→</span>
+        <PillButton onClick={submit} loading={loading || status === "loading"} className="w-full py-4 text-base">
+          {status === "anon" ? t("login.signInToContinue") : t("create.submit")} <span aria-hidden>→</span>
         </PillButton>
         <p className="mt-3 text-center text-xs text-ink-soft/80">{t("create.note")}</p>
       </div>

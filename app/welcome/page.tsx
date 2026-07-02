@@ -53,7 +53,7 @@ export default function Welcome() {
       </div>
 
       <div className="mt-auto flex flex-col items-center gap-3 pt-8">
-        <Link href="/" className="w-full">
+        <Link href="/login" className="w-full">
           <PillButton className="w-full py-4 text-base">
             {t("welcome.getStarted")} <span aria-hidden>→</span>
           </PillButton>

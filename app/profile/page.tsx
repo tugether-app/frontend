@@ -9,19 +9,18 @@ import { Avatar } from "@/components/Avatar";
 import { BottomNav } from "@/components/BottomNav";
 import { useToast } from "@/components/Toast";
 import { useI18n } from "@/lib/i18n/provider";
-import { clearIdentity } from "@/lib/identity";
+import { useAuth } from "@/lib/auth";
 
 const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member", "badge-goal-completed", "badge-super-saver"];
-
-// Profile stub. BE pass: real Magic session (name, email), sign out.
 
 export default function ProfilePage() {
   const { t } = useI18n();
   const router = useRouter();
   const toast = useToast();
+  const { user, logout } = useAuth();
 
-  function signOut() {
-    clearIdentity();
+  async function signOut() {
+    await logout();
     toast(t("profile.signedOut"), "success");
     router.push("/welcome");
   }
@@ -37,10 +36,10 @@ export default function ProfilePage() {
       <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">{t("profile.title")}</h1>
 
       <Card className="mt-6 flex items-center gap-4 p-5">
-        <Avatar seed="you" size={56} />
+        <Avatar seed={user?.seed ?? "you"} size={56} />
         <div className="min-w-0">
-          <p className="font-display text-lg font-semibold text-ink">{t("profile.you")}</p>
-          <p className="truncate text-sm font-medium text-ink-soft">{t("profile.signedIn")}</p>
+          <p className="font-display text-lg font-semibold text-ink">{user?.name ?? t("profile.you")}</p>
+          <p className="truncate text-sm font-medium text-ink-soft">{user?.email ?? t("profile.signedIn")}</p>
         </div>
       </Card>
 

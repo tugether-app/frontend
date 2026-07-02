@@ -42,6 +42,16 @@ const en: Dict = {
   "welcome.builtFor": "Built for UXmaxx Hackathon · 2026",
   "welcome.powered": "Powered by Particle Network · Magic · ZeroDev · Arbitrum",
 
+  "login.badge": "no wallet, just Google",
+  "login.title": "Sign in to continue",
+  "login.subtitle": "One tap with your Google account. That's your account, ready to save.",
+  "login.continueGoogle": "Continue with Google",
+  "login.cancelled": "Sign-in was cancelled. Try again.",
+  "login.configMissing": "Sign-in isn't set up yet. Try again soon.",
+  "login.signingIn": "Signing you in...",
+  "login.signInToContinue": "Sign in to continue",
+  "login.signInToJoin": "Sign in to join",
+
   "create.label": "New goal",
   "create.allSet": "All set",
   "create.title": "Start a new goal",
@@ -165,6 +175,16 @@ const id: Dict = {
   "welcome.noSeed": "Tanpa seed phrase. Tidak perlu install apa pun.",
   "welcome.builtFor": "Dibangun untuk UXmaxx Hackathon · 2026",
   "welcome.powered": "Powered by Particle Network · Magic · ZeroDev · Arbitrum",
+
+  "login.badge": "tanpa wallet, cukup Google",
+  "login.title": "Masuk untuk lanjut",
+  "login.subtitle": "Cukup satu tap dengan akun Google. Akunmu langsung siap buat nabung.",
+  "login.continueGoogle": "Lanjut dengan Google",
+  "login.cancelled": "Proses masuk dibatalkan. Coba lagi.",
+  "login.configMissing": "Fitur masuk belum siap. Coba lagi nanti.",
+  "login.signingIn": "Sedang memproses masuk...",
+  "login.signInToContinue": "Masuk untuk lanjut",
+  "login.signInToJoin": "Masuk untuk gabung",
 
   "create.label": "Tujuan baru",
   "create.allSet": "Beres",

@@ -16,6 +16,7 @@
     "@magic-sdk/commons": "^26.0.0",
     "@particle-network/universal-account-sdk": "^1.1.1",
     "@supabase/supabase-js": "^2.108.1",
+    "@zerodev/ecdsa-validator": "^5.4.9",
     "@zerodev/permissions": "^5.6.3",
     "@zerodev/sdk": "^5.5.10",
     "magic-sdk": "^33.7.1",
@@ -35,6 +36,11 @@
   },
   "packageManager": "pnpm@11.7.0",
   "pnpm": {
-    "ignoredBuiltDependencies": ["bigint-buffer", "bufferutil", "utf-8-validate"]
+    "ignoredBuiltDependencies": [
+      "bigint-buffer",
+      "bufferutil",
+      "sharp",
+      "utf-8-validate"
+    ]
   }
 }

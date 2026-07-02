@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, PillButton, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import { CoinJar } from "@/components/CoinJar";
@@ -18,7 +18,7 @@ import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { progressPct, money } from "@/lib/format";
 import { catIcon } from "@/lib/categories";
-import { getIdentity, type Identity } from "@/lib/identity";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 
@@ -27,19 +27,18 @@ const MIN_DEPOSIT = 5;
 
 export default function GoalPage() {
   const { slug } = useParams<{ slug: string }>();
+  const router = useRouter();
   const toast = useToast();
   const { t } = useI18n();
+  const { status, user: me } = useAuth();
 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [phase, setPhase] = useState<"loading" | "ready" | "notfound">("loading");
-  const [me, setMe] = useState<Identity | null>(null);
   const [busy, setBusy] = useState<"join" | "deposit" | "withdraw" | null>(null);
   const [sheet, setSheet] = useState(false);
   const [amount, setAmount] = useState<number | "">("");
   const [celebrate, setCelebrate] = useState(false);
   const prevStatus = useRef<string | undefined>(undefined);
-
-  useEffect(() => setMe(getIdentity()), []);
 
   useEffect(() => {
     let on = true;
@@ -250,6 +249,14 @@ export default function GoalPage() {
           {isClosed ? (
             <PillButton variant="light" className="w-full py-4" disabled>
               {t("goal.fundsWithdrawn")}
+            </PillButton>
+          ) : status !== "authed" ? (
+            <PillButton
+              onClick={() => router.push(`/login?next=/g/${slug}`)}
+              loading={status === "loading"}
+              className="w-full py-4"
+            >
+              {t("login.signInToJoin")}
             </PillButton>
           ) : !joined ? (
             <PillButton onClick={join} loading={busy === "join"} className="w-full py-4">

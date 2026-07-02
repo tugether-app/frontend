@@ -5,6 +5,7 @@ out
 .env.local
 .env*.local
 *.log
+package-lock.json
 .DS_Store
 .vercel
 next-env.d.ts
