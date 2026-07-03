@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 /* eslint-disable @next/next/no-img-element */
+import type { Address } from "viem";
 import { PillButton, Card, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import { Mascot } from "@/components/Mascot";
@@ -13,11 +14,13 @@ import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { money } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
+import { deployGoalVault } from "@/lib/sdk/zerodev";
 import { useI18n } from "@/lib/i18n/provider";
 import { CATEGORIES, catIcon } from "@/lib/categories";
 
-// Create flow. Name + target -> POST /api/goals (deploys GoalVault), auto-joins
-// the creator, then shows the share step with the returned invite slug.
+// Create flow. Name + target -> deploy a real GoalVault from the creator's own
+// smart account (via the GoalVaultFactory), then POST /api/goals to save the
+// metadata, auto-join the creator, and show the share step with the invite slug.
 
 const PRESETS = [500, 1_000, 2_500, 5_000];
 const MIN_TARGET = 50;
@@ -33,7 +36,7 @@ export default function CreatePage() {
   const toast = useToast();
   const { t } = useI18n();
   const router = useRouter();
-  const { status, user } = useAuth();
+  const { status, user, getProvider } = useAuth();
 
   const nameOk = name.trim().length >= MIN_NAME;
   const targetOk = typeof target === "number" && target >= MIN_TARGET;
@@ -48,7 +51,18 @@ export default function CreatePage() {
     if (!valid || typeof target !== "number" || !user) return;
     setLoading(true);
     try {
-      const goal = await api.createGoal({ name: name.trim(), targetAmount: target, category, creatorAddr: user.addr });
+      const { vaultAddr } = await deployGoalVault({
+        eip1193Provider: getProvider(),
+        creator: user.addr as Address,
+        targetAmount: target,
+      });
+      const goal = await api.createGoal({
+        name: name.trim(),
+        targetAmount: target,
+        category,
+        creatorAddr: user.addr,
+        vaultAddr,
+      });
       // Auto-join the creator so they're a member of their own goal.
       await api.join(goal.id, { memberAddr: user.addr, displayName: user.name, avatarSeed: user.seed }).catch(() => {});
       setCreatedSlug(goal.joinSlug);

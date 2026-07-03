@@ -57,14 +57,18 @@ export async function createGoal(input: {
   targetAmount: number;
   category?: string;
   creatorAddr?: string;
+  vaultAddr: string;
 }): Promise<Goal> {
   if (!input.name || input.name.trim().length < 3)
     throw new ApiError(400, "INVALID_NAME", "Goal name needs at least 3 characters.");
   if (!(input.targetAmount > 0))
     throw new ApiError(400, "INVALID_TARGET", "Target must be greater than zero.");
+  if (!input.creatorAddr) throw new ApiError(400, "INVALID_CREATOR", "Goal must have a creator.");
+  if (!input.vaultAddr?.startsWith("0x"))
+    throw new ApiError(400, "INVALID_VAULT", "Goal must have a deployed vault address.");
 
-  const creator = input.creatorAddr ?? "0x0000000000000000000000000000000000000000";
-  const { vaultAddr } = await zerodev.deployGoalVault({ creator, targetAmount: input.targetAmount });
+  const creator = input.creatorAddr;
+  const vaultAddr = input.vaultAddr;
 
   const goal: Goal = {
     id: uuid(),

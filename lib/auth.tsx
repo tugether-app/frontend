@@ -4,6 +4,7 @@
 // Replaces the old lib/identity.ts (random per-browser fake address).
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import type { EIP1193Provider } from "viem";
 import {
   getMagicProvider,
   getMagicSession,
@@ -29,6 +30,7 @@ interface AuthCtx {
   loginWithGoogle: () => void;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+  getProvider: () => EIP1193Provider;
 }
 
 const Ctx = createContext<AuthCtx>({
@@ -38,6 +40,9 @@ const Ctx = createContext<AuthCtx>({
   loginWithGoogle: () => {},
   logout: async () => {},
   refresh: async () => {},
+  getProvider: () => {
+    throw new Error("Not signed in.");
+  },
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -83,8 +88,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  const getProvider = useCallback((): EIP1193Provider => {
+    if (status !== "authed") throw new Error("Not signed in.");
+    return getMagicProvider();
+  }, [status]);
+
   return (
-    <Ctx.Provider value={{ status, user, error, loginWithGoogle, logout, refresh }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ status, user, error, loginWithGoogle, logout, refresh, getProvider }}>
+      {children}
+    </Ctx.Provider>
   );
 }
 

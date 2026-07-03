@@ -21,7 +21,7 @@ export const api = {
 
   listActivity: () => call<ActivityEvent[]>("/api/activity"),
 
-  createGoal: (input: { name: string; targetAmount: number; category?: string; creatorAddr?: string }) =>
+  createGoal: (input: { name: string; targetAmount: number; category?: string; creatorAddr?: string; vaultAddr: string }) =>
     call<Goal>("/api/goals", { method: "POST", body: JSON.stringify(input) }),
 
   getGoalBySlug: (slug: string) => call<Goal>(`/api/goals/by-slug/${slug}`),

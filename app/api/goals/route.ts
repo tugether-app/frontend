@@ -10,10 +10,17 @@ export async function GET() {
   }
 }
 
-// POST /api/goals -> create goal + deploy GoalVault.
+// POST /api/goals -> create goal. Vault is deployed client-side (creator's own
+// smart account via GoalVaultFactory) before this call; we just save metadata.
 export async function POST(req: Request) {
   try {
-    const body = await readJson<{ name: string; targetAmount: number; creatorAddr?: string }>(req);
+    const body = await readJson<{
+      name: string;
+      targetAmount: number;
+      category?: string;
+      creatorAddr?: string;
+      vaultAddr: string;
+    }>(req);
     const goal = await createGoal(body);
     return ok(goal, 201);
   } catch (e) {
