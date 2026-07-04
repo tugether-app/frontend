@@ -1,9 +1,6 @@
 import type { ActivityEvent, Goal, GoalStatus, Member } from "./types";
 import { allEvents, allGoals, findById, findBySlug, insert, pushEvent } from "./store";
 import { money } from "./format";
-import * as zerodev from "./sdk/zerodev";
-import * as particle from "./sdk/particle";
-
 // Async data layer. API routes call only this module. Backed by the in-memory
 // store for now; swap the store calls for Supabase queries to go live.
 // (Async signatures already match a real DB so routes won't change.)
@@ -98,16 +95,13 @@ export async function joinGoal(
   if (g.members.some((m) => m.memberAddr === input.memberAddr))
     throw new ApiError(409, "ALREADY_MEMBER", "You are already a member of this goal.");
 
-  // First touch: upgrade EOA -> Universal Account (7702).
-  const uaAddr = await particle.ensureUniversalAccount(input.memberAddr);
-
   const member: Member = {
     id: uuid(),
     displayName: input.displayName || "Member",
-    avatarSeed: input.avatarSeed || uaAddr,
+    avatarSeed: input.avatarSeed || input.memberAddr,
     totalDeposited: 0,
     joinedAt: new Date().toISOString(),
-    memberAddr: uaAddr,
+    memberAddr: input.memberAddr,
   };
   g.members.push(member);
   pushEvent({ type: "joined", goalSlug: g.joinSlug, goalName: g.name, actor: member.displayName });
@@ -125,14 +119,9 @@ export async function recordDeposit(
   const member = g.members.find((m) => m.memberAddr === input.memberAddr);
   if (!member) throw new ApiError(403, "NOT_MEMBER", "Only members can deposit.");
 
-  // Route the cross-chain deposit into the vault's pooled balance.
-  await particle.routeDeposit({
-    from: input.memberAddr,
-    vaultAddr: g.vaultAddr ?? "",
-    amount: input.amount,
-    sourceChain: input.sourceChain,
-  });
-
+  // The on-chain deposit (approve + vault.deposit) already happened client-side,
+  // from the member's own smart account, before this call -- this just persists
+  // the metadata. Cross-chain routing via Particle UA is a separate, later path.
   member.totalDeposited += input.amount;
   g.collectedAmount = Math.min(g.targetAmount, g.collectedAmount + input.amount);
   pushEvent({ type: "deposited", goalSlug: g.joinSlug, goalName: g.name, actor: member.displayName, amount: input.amount });
@@ -145,15 +134,12 @@ export async function recordDeposit(
   return g;
 }
 
+// Called after the on-chain release/refund succeeds client-side; marks the goal
+// closed in metadata so the list view updates correctly.
 export async function withdrawGoal(id: string, input: { toAddr: string }): Promise<Goal> {
   const g = findById(id);
   if (!g) throw new ApiError(404, "GOAL_NOT_FOUND", "Goal not found.");
-  if (g.status !== "reached")
-    throw new ApiError(403, "TARGET_NOT_REACHED", "Funds can only be withdrawn once the target is reached.");
-
-  // Lock rule is enforced on-chain by the ZeroDev permission; this just sends it.
-  await zerodev.withdraw({ vaultAddr: g.vaultAddr ?? "", to: input.toAddr });
   g.status = "closed";
-  pushEvent({ type: "withdrawn", goalSlug: g.joinSlug, goalName: g.name, actor: "" });
+  pushEvent({ type: "withdrawn", goalSlug: g.joinSlug, goalName: g.name, actor: input.toAddr.slice(0, 6) });
   return g;
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import type { Address } from "viem";
 import { Card, PillButton, Chip } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import { CoinJar } from "@/components/CoinJar";
@@ -19,50 +20,96 @@ import { api } from "@/lib/client";
 import { progressPct, money } from "@/lib/format";
 import { catIcon } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
+import {
+  depositToVault,
+  getUsdcBalance,
+  readVaultState,
+  voteOnVault,
+  executeRelease,
+  executeRefund,
+  claimRefund,
+  type VaultState,
+} from "@/lib/sdk/zerodev";
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 
 const DEPOSITS = [25, 50, 100, 250];
 const MIN_DEPOSIT = 5;
 
+type BusyKey = "join" | "deposit" | "vote-release" | "vote-refund" | "exec-release" | "exec-refund" | "claim" | null;
+
 export default function GoalPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
   const toast = useToast();
   const { t } = useI18n();
-  const { status, user: me } = useAuth();
+  const { status, user: me, getProvider } = useAuth();
 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [phase, setPhase] = useState<"loading" | "ready" | "notfound">("loading");
-  const [busy, setBusy] = useState<"join" | "deposit" | "withdraw" | null>(null);
+  const [busy, setBusy] = useState<BusyKey>(null);
   const [sheet, setSheet] = useState(false);
   const [amount, setAmount] = useState<number | "">("");
+  const [balance, setBalance] = useState<number | null>(null);
   const [celebrate, setCelebrate] = useState(false);
+  const [vaultState, setVaultState] = useState<VaultState | null>(null);
   const prevStatus = useRef<string | undefined>(undefined);
+
+  const refreshVaultState = useCallback(
+    async (g: Goal) => {
+      if (!g.vaultAddr) return;
+      try {
+        const state = await readVaultState({
+          vaultAddr: g.vaultAddr as Address,
+          memberAddr: me?.addr as Address | undefined,
+        });
+        setVaultState(state);
+      } catch {
+        // silent -- vault state is a best-effort read
+      }
+    },
+    [me?.addr],
+  );
 
   useEffect(() => {
     let on = true;
     api
       .getGoalBySlug(slug)
-      .then((g) => on && (setGoal(g), setPhase("ready")))
+      .then((g) => {
+        if (!on) return;
+        setGoal(g);
+        setPhase("ready");
+        refreshVaultState(g);
+      })
       .catch(() => on && setPhase("notfound"));
     return () => {
       on = false;
     };
-  }, [slug]);
+  }, [slug, refreshVaultState]);
 
-  // Fire confetti only on the open -> reached transition (not on a goal that
-  // was already reached when the page loaded).
+  // Fire confetti only on the open -> reached transition.
   useEffect(() => {
-    const status = goal?.status;
-    if (prevStatus.current === "open" && status === "reached") {
+    const s = goal?.status;
+    if (prevStatus.current === "open" && s === "reached") {
       setCelebrate(true);
       const t = setTimeout(() => setCelebrate(false), 4500);
-      prevStatus.current = status;
+      prevStatus.current = s;
       return () => clearTimeout(t);
     }
-    prevStatus.current = status;
+    prevStatus.current = s;
   }, [goal?.status]);
+
+  // Fetch depositor's USDC balance when deposit sheet opens.
+  useEffect(() => {
+    if (!sheet || !me) return;
+    let on = true;
+    getUsdcBalance(me.addr as Address)
+      .then((b) => on && setBalance(b))
+      .catch(() => on && setBalance(null));
+    return () => {
+      on = false;
+    };
+  }, [sheet, me]);
 
   // Sheet: lock body scroll + close on Escape.
   useEffect(() => {
@@ -103,17 +150,26 @@ export default function GoalPage() {
 
   const pct = progressPct(goal);
   const isReached = goal.status === "reached" || goal.status === "closed";
-  const isClosed = goal.status === "closed";
   const joined = !!me && goal.members.some((m) => m.memberAddr === me.addr);
-  const isCreator = !!me && goal.creatorAddr === me.addr;
+
+  // Derived vault phase from on-chain state (source of truth)
+  const isReleased = vaultState?.released ?? false;
+  const isRefunded = vaultState?.refunded ?? false;
+  const isFinalized = isReleased || isRefunded;
+  const canExecRelease =
+    !!vaultState && !isFinalized && vaultState.memberCount > 0 && vaultState.releaseVotes * 2 >= vaultState.memberCount;
+  const canExecRefund =
+    !!vaultState && !isFinalized && vaultState.memberCount > 0 && vaultState.refundVotes * 2 >= vaultState.memberCount;
 
   async function join() {
     if (!goal || !me) return;
     setBusy("join");
     try {
       await api.join(goal.id, { memberAddr: me.addr, displayName: me.name, avatarSeed: me.seed });
-      setGoal(await api.getGoalBySlug(slug));
-      setSheet(true); // jump straight into the first deposit
+      const updated = await api.getGoalBySlug(slug);
+      setGoal(updated);
+      await refreshVaultState(updated);
+      setSheet(true); // jump into first deposit
       toast(t("goal.joined"), "success");
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not join", "error");
@@ -123,11 +179,13 @@ export default function GoalPage() {
   }
 
   async function deposit() {
-    if (!goal || !me || typeof amount !== "number" || amount < MIN_DEPOSIT) return;
+    if (!goal || !me || typeof amount !== "number" || amount < MIN_DEPOSIT || !goal.vaultAddr) return;
     setBusy("deposit");
     try {
+      await depositToVault({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address, amount });
       const updated = await api.deposit(goal.id, { memberAddr: me.addr, amount });
       setGoal(updated);
+      await refreshVaultState(updated);
       setSheet(false);
       setAmount("");
       toast(t("goal.depositOk"), "success");
@@ -138,18 +196,110 @@ export default function GoalPage() {
     }
   }
 
-  async function withdraw() {
-    if (!goal || !me) return;
-    setBusy("withdraw");
+  async function vote(choice: "release" | "refund") {
+    if (!goal?.vaultAddr || !me) return;
+    const key: BusyKey = choice === "release" ? "vote-release" : "vote-refund";
+    setBusy(key);
     try {
-      const updated = await api.withdraw(goal.id, { toAddr: me.addr });
-      setGoal(updated);
-      toast(t("goal.withdrawOk"), "success");
+      await voteOnVault({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address, choice });
+      await refreshVaultState(goal);
+      toast(t("goal.vote.ok.vote"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Could not withdraw", "error");
+      toast(e instanceof Error ? e.message : "Vote failed", "error");
     } finally {
       setBusy(null);
     }
+  }
+
+  async function execRelease() {
+    if (!goal?.vaultAddr || !me) return;
+    setBusy("exec-release");
+    try {
+      await executeRelease({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
+      await refreshVaultState(goal);
+      toast(t("goal.vote.ok.release"), "success");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Release failed", "error");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function execRefund() {
+    if (!goal?.vaultAddr || !me) return;
+    setBusy("exec-refund");
+    try {
+      await executeRefund({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
+      await refreshVaultState(goal);
+      toast(t("goal.vote.ok.refund"), "success");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Refund failed", "error");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function claim() {
+    if (!goal?.vaultAddr || !me) return;
+    setBusy("claim");
+    try {
+      await claimRefund({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
+      await refreshVaultState(goal);
+      toast(t("goal.vote.ok.claim"), "success");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Claim failed", "error");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  // Bottom bar action
+  function renderActionBar() {
+    if (status !== "authed") {
+      return (
+        <PillButton
+          onClick={() => router.push(`/login?next=/g/${slug}`)}
+          loading={status === "loading"}
+          className="w-full py-4"
+        >
+          {t("login.signInToJoin")}
+        </PillButton>
+      );
+    }
+    if (!joined) {
+      return (
+        <PillButton onClick={join} loading={busy === "join"} className="w-full py-4">
+          {t("goal.join")}
+        </PillButton>
+      );
+    }
+    if (isReleased) {
+      return (
+        <PillButton variant="light" className="w-full py-4" disabled>
+          {t("goal.vote.released")} ✓
+        </PillButton>
+      );
+    }
+    if (isRefunded) {
+      const myContrib = vaultState?.myContribution ?? 0;
+      if (myContrib > 0) {
+        return (
+          <PillButton onClick={claim} loading={busy === "claim"} className="w-full py-4">
+            {t("goal.vote.claim", { v: money(myContrib) })}
+          </PillButton>
+        );
+      }
+      return (
+        <PillButton variant="light" className="w-full py-4" disabled>
+          {t("goal.vote.claimed")} ✓
+        </PillButton>
+      );
+    }
+    return (
+      <PillButton onClick={() => setSheet(true)} className="w-full py-4">
+        {t("goal.addDeposit")}
+      </PillButton>
+    );
   }
 
   return (
@@ -188,8 +338,10 @@ export default function GoalPage() {
             }}
           />
         </div>
-        {isClosed ? (
-          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.withdrawn")}</p>
+        {isReleased ? (
+          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.vote.released")} ✓</p>
+        ) : isRefunded ? (
+          <p className="mt-3 rounded-full bg-amber-100 px-4 py-1.5 text-sm font-bold text-amber-700">{t("goal.vote.refunded")}</p>
         ) : isReached ? (
           <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.reached")}</p>
         ) : (
@@ -215,6 +367,7 @@ export default function GoalPage() {
           <ul className="mt-4 flex flex-col gap-3">
             {goal.members.map((m) => {
               const isMe = !!me && m.memberAddr === me.addr;
+              const memberVote = isMe ? vaultState?.myVote : undefined;
               return (
                 <li
                   key={m.id}
@@ -225,6 +378,15 @@ export default function GoalPage() {
                     {m.displayName}
                     {isMe && <span className="ml-1.5 text-[11px] font-bold text-gold-deep">{t("goal.you")}</span>}
                   </span>
+                  {memberVote !== undefined && memberVote !== 0 && (
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                        memberVote === 1 ? "bg-success/15 text-success" : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {memberVote === 1 ? "↑ Release" : "↩ Refund"}
+                    </span>
+                  )}
                   <span className="text-sm font-semibold text-ink-soft">{money(m.totalDeposited)}</span>
                 </li>
               );
@@ -232,6 +394,84 @@ export default function GoalPage() {
           </ul>
         )}
       </Card>
+
+      {/* Voting card -- shown to members while vault is active */}
+      {joined && goal.vaultAddr && (
+        <Card className="mt-4 p-5">
+          <h2 className="font-display text-base font-semibold text-ink">{t("goal.vote.title")}</h2>
+
+          {isReleased ? (
+            <p className="mt-3 rounded-2xl bg-success/10 px-4 py-3 text-sm font-semibold text-success">
+              {t("goal.vote.released")} ✓
+            </p>
+          ) : isRefunded ? (
+            <p className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">
+              {t("goal.vote.refunded")} — {t("goal.vote.claim", { v: money(vaultState?.myContribution ?? 0) })}
+            </p>
+          ) : (
+            <>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {/* Release option */}
+                <VoteOption
+                  title={t("goal.vote.release")}
+                  desc={t("goal.vote.releaseDesc")}
+                  votes={vaultState?.releaseVotes ?? 0}
+                  total={vaultState?.memberCount ?? goal.members.length}
+                  active={vaultState?.myVote === 1}
+                  tally={t("goal.vote.tally")}
+                  myVoteLabel={t("goal.vote.myVote")}
+                  voteLabel={t("goal.vote.doVote")}
+                  onVote={() => vote("release")}
+                  loading={busy === "vote-release"}
+                  disabled={!!busy || isFinalized}
+                  color="success"
+                />
+                {/* Refund option */}
+                <VoteOption
+                  title={t("goal.vote.refund")}
+                  desc={t("goal.vote.refundDesc")}
+                  votes={vaultState?.refundVotes ?? 0}
+                  total={vaultState?.memberCount ?? goal.members.length}
+                  active={vaultState?.myVote === 2}
+                  tally={t("goal.vote.tally")}
+                  myVoteLabel={t("goal.vote.myVote")}
+                  voteLabel={t("goal.vote.doVote")}
+                  onVote={() => vote("refund")}
+                  loading={busy === "vote-refund"}
+                  disabled={!!busy || isFinalized}
+                  color="amber"
+                />
+              </div>
+
+              {/* Execute buttons -- permissionless once majority reached */}
+              {canExecRelease && (
+                <PillButton
+                  onClick={execRelease}
+                  loading={busy === "exec-release"}
+                  disabled={!!busy}
+                  className="mt-4 w-full py-3"
+                >
+                  {t("goal.vote.execute.release")}
+                </PillButton>
+              )}
+              {canExecRefund && (
+                <PillButton
+                  onClick={execRefund}
+                  loading={busy === "exec-refund"}
+                  disabled={!!busy}
+                  variant="light"
+                  className="mt-4 w-full py-3"
+                >
+                  {t("goal.vote.execute.refund")}
+                </PillButton>
+              )}
+              {(canExecRelease || canExecRefund) && (
+                <p className="mt-2 text-center text-[11px] font-semibold text-gold-deep">{t("goal.vote.majority")}</p>
+              )}
+            </>
+          )}
+        </Card>
+      )}
 
       <div className="mt-4">
         <ShareButton slug={slug} />
@@ -245,33 +485,7 @@ export default function GoalPage() {
 
       {/* Sticky action bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 px-6 pt-4 pb-[max(env(safe-area-inset-bottom),16px)] backdrop-blur">
-        <div className="mx-auto max-w-md">
-          {isClosed ? (
-            <PillButton variant="light" className="w-full py-4" disabled>
-              {t("goal.fundsWithdrawn")}
-            </PillButton>
-          ) : status !== "authed" ? (
-            <PillButton
-              onClick={() => router.push(`/login?next=/g/${slug}`)}
-              loading={status === "loading"}
-              className="w-full py-4"
-            >
-              {t("login.signInToJoin")}
-            </PillButton>
-          ) : !joined ? (
-            <PillButton onClick={join} loading={busy === "join"} className="w-full py-4">
-              {t("goal.join")}
-            </PillButton>
-          ) : goal.status === "reached" ? (
-            <PillButton onClick={withdraw} loading={busy === "withdraw"} className="w-full py-4">
-              {t("goal.withdraw")}
-            </PillButton>
-          ) : (
-            <PillButton onClick={() => setSheet(true)} className="w-full py-4">
-              {t("goal.addDeposit")}
-            </PillButton>
-          )}
-        </div>
+        <div className="mx-auto max-w-md">{renderActionBar()}</div>
       </div>
 
       {/* Deposit sheet */}
@@ -283,8 +497,14 @@ export default function GoalPage() {
           aria-label="Add deposit"
           onClick={() => setSheet(false)}
         >
-          <div className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="font-display text-xl font-semibold text-ink">{t("goal.howMuch")}</h2>
+            {balance !== null && (
+              <p className="mt-1 text-xs font-semibold text-ink-soft">{t("goal.balance", { v: money(balance) })}</p>
+            )}
             <div className="mt-4 flex items-baseline gap-2 rounded-[14px] border-[1.5px] border-line bg-[#FFFCF4] px-4 py-3.5 transition focus-within:border-gold focus-within:shadow-[0_0_0_4px_rgba(244,183,64,0.12)]">
               <span className="font-display text-lg font-semibold text-ink-soft">$</span>
               <input
@@ -319,5 +539,72 @@ export default function GoalPage() {
         </div>
       )}
     </main>
+  );
+}
+
+// ── VoteOption sub-component ────────────────────────────────────────────────
+
+interface VoteOptionProps {
+  title: string;
+  desc: string;
+  votes: number;
+  total: number;
+  active: boolean;
+  tally: string;
+  myVoteLabel: string;
+  voteLabel: string;
+  onVote: () => void;
+  loading: boolean;
+  disabled: boolean;
+  color: "success" | "amber";
+}
+
+function VoteOption({ title, desc, votes, total, active, tally, myVoteLabel, voteLabel, onVote, loading, disabled, color }: VoteOptionProps) {
+  const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
+  const majority = total > 0 && votes * 2 >= total;
+
+  const ring = color === "success" ? "#3FB984" : "#F59E0B";
+  const bg = active
+    ? color === "success"
+      ? "bg-success/10 border-success/40"
+      : "bg-amber-50 border-amber-300"
+    : "bg-surface border-line";
+  const textAccent = color === "success" ? "text-success" : "text-amber-600";
+  const tallyStr = tally.replace("{v}", String(votes)).replace("{n}", String(total));
+
+  return (
+    <div className={`flex flex-col gap-2 rounded-2xl border p-3.5 transition ${bg}`}>
+      <span className="text-sm font-bold text-ink leading-tight">{title}</span>
+      <span className="text-[11px] font-medium text-ink-soft leading-tight">{desc}</span>
+
+      {/* Mini progress bar */}
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+        <div
+          className="h-full rounded-full transition-[width] duration-500"
+          style={{ width: `${pct}%`, background: ring }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <span className={`text-[11px] font-bold ${majority ? textAccent : "text-ink-soft"}`}>{tallyStr}</span>
+        {active && <span className={`text-[10px] font-bold ${textAccent}`}>{myVoteLabel} ✓</span>}
+      </div>
+
+      <button
+        onClick={onVote}
+        disabled={disabled || loading}
+        className={`mt-1 rounded-xl px-3 py-2 text-xs font-bold transition active:scale-95 disabled:opacity-40 ${
+          active
+            ? color === "success"
+              ? "bg-success text-white"
+              : "bg-amber-500 text-white"
+            : color === "success"
+              ? "bg-success/15 text-success hover:bg-success/25"
+              : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+        }`}
+      >
+        {loading ? "..." : voteLabel}
+      </button>
+    </div>
   );
 }

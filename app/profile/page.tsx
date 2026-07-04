@@ -40,6 +40,7 @@ export default function ProfilePage() {
         <div className="min-w-0">
           <p className="font-display text-lg font-semibold text-ink">{user?.name ?? t("profile.you")}</p>
           <p className="truncate text-sm font-medium text-ink-soft">{user?.email ?? t("profile.signedIn")}</p>
+          {user?.addr && <p className="mt-1 select-all break-all font-mono text-[11px] text-ink-soft/60">{user.addr}</p>}
         </div>
       </Card>
 
