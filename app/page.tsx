@@ -10,13 +10,23 @@ import { Mascot } from "@/components/Mascot";
 import { GoalCard } from "@/components/GoalCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
+import { RequireAuth } from "@/components/RequireAuth";
 import { api } from "@/lib/client";
 import { money, progressPct } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 
 // Home = dashboard: greeting, stats, a featured goal, and your goals list.
+// Member-only: RequireAuth sends anonymous visitors to /welcome instead.
 export default function Home() {
+  return (
+    <RequireAuth>
+      <Dashboard />
+    </RequireAuth>
+  );
+}
+
+function Dashboard() {
   const { t } = useI18n();
   const [goals, setGoals] = useState<Goal[] | null>(null);
 

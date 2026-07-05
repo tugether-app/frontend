@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { BottomNav } from "@/components/BottomNav";
+import { RequireAuth } from "@/components/RequireAuth";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { api } from "@/lib/client";
 import { useI18n } from "@/lib/i18n/provider";
@@ -13,6 +14,14 @@ import type { ActivityEvent } from "@/lib/types";
 const NOTIF_TYPES = new Set(["joined", "deposited", "reached", "withdrawn"]);
 
 export default function NotificationsPage() {
+  return (
+    <RequireAuth>
+      <NotificationsView />
+    </RequireAuth>
+  );
+}
+
+function NotificationsView() {
   const { t } = useI18n();
   const [events, setEvents] = useState<ActivityEvent[] | null>(null);
 

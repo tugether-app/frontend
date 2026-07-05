@@ -7,6 +7,7 @@ import { Card, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { BottomNav } from "@/components/BottomNav";
+import { RequireAuth } from "@/components/RequireAuth";
 import { useToast } from "@/components/Toast";
 import { useI18n } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/auth";
@@ -14,6 +15,14 @@ import { useAuth } from "@/lib/auth";
 const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member", "badge-goal-completed", "badge-super-saver"];
 
 export default function ProfilePage() {
+  return (
+    <RequireAuth>
+      <Profile />
+    </RequireAuth>
+  );
+}
+
+function Profile() {
   const { t } = useI18n();
   const router = useRouter();
   const toast = useToast();

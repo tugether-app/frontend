@@ -2,10 +2,19 @@
 
 import { Card } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
+import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n/provider";
 import { LANGS } from "@/lib/i18n/dict";
 
 export default function SettingsPage() {
+  return (
+    <RequireAuth>
+      <Settings />
+    </RequireAuth>
+  );
+}
+
+function Settings() {
   const { t, lang, setLang } = useI18n();
 
   return (
