@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tugether: Pitch Deck</title>
+<meta name="description" content="Tugether pitch deck. Save toward it, together." />
+<link rel="icon" href="/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FBFAF7;
+    --surface: #FFFFFF;
+    --gold: #F4B740;
+    --gold-deep: #E09A1E;
+    --gold-soft: #FDF3DC;
+    --ink: #2B2622;
+    --ink-soft: #8A8178;
+    --line: #ECE7DE;
+    --success: #3FB984;
+    --blush: #F6B6A0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    overflow: hidden;
+  }
+  h1, h2, h3, .display { font-family: 'Fredoka', sans-serif; }
+
+  #deck {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  .slide {
+    min-height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding: 64px 8vw 64px;
+    overflow: hidden;
+  }
+  .slide-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(2px);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gold-deep);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(224,154,30,0.07);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 14px rgba(224,154,30,0.08);
+  }
+  .btn-gold {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--gold);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 16px;
+    box-shadow: 0 5px 0 var(--gold-deep), 0 8px 18px rgba(224,154,30,0.28);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  img { max-width: 100%; display: block; }
+
+  /* ---- Nav chrome ---- */
+  .brand-fixed {
+    position: fixed;
+    top: 22px;
+    left: 28px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .brand-fixed img { width: 28px; height: 28px; border-radius: 8px; box-shadow: 0 2px 6px rgba(43,38,34,0.15); }
+  .brand-fixed span { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; }
+
+  .counter-fixed {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    z-index: 50;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  .dots {
+    position: fixed;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E6DECF;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: all 0.25s ease;
+  }
+  .dot.active { background: var(--gold); height: 22px; }
+
+  .arrows {
+    position: fixed;
+    bottom: 22px;
+    right: 28px;
+    z-index: 50;
+    display: flex;
+    gap: 8px;
+  }
+  .arrow-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ink);
+    box-shadow: 0 4px 12px rgba(43,38,34,0.08);
+  }
+  .arrow-btn:hover { border-color: var(--gold); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,6px); } }
+
+  @media (max-width: 720px) {
+    .slide { padding: 90px 6vw 70px; }
+    .dots { display: none; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+  }
+
+  /* ---- shared layout helpers ---- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  /* ---- phone mock ---- */
+  .phone {
+    width: 280px;
+    background: var(--bg);
+    border: 8px solid var(--ink);
+    border-radius: 40px;
+    padding: 14px 12px;
+    box-shadow: 0 24px 60px rgba(43,38,34,0.22);
+    margin: 0 auto;
+  }
+  .phone .screen { background: var(--bg); border-radius: 6px; }
+  .mini-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 10px 12px;
+  }
+  .ring {
+    background: conic-gradient(var(--gold) calc(var(--p) * 1%), var(--gold-soft) 0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ring-inner {
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    color: var(--gold-deep);
+  }
+  .avatar-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: linear-gradient(135deg, var(--gold), var(--blush));
+  }
+</style>
+</head>
+<body>
+
+<a class="brand-fixed" href="/" aria-label="Tugether home">
+  <img src="/icon-192.png" alt="" />
+  <span>tugether</span>
+</a>
+<div class="counter-fixed"><span id="cur">1</span> / <span id="tot">11</span></div>
+<div class="dots" id="dots"></div>
+<div class="arrows">
+  <button class="arrow-btn" id="prevBtn" aria-label="Previous slide">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="#2B2622" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="arrow-btn" id="nextBtn" aria-label="Next slide">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#2B2622" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<main id="deck">
+
+  <!-- ================= 1. COVER ================= -->
+  <section class="slide" style="background:linear-gradient(180deg,#FFFCF4 0%,#FBFAF7 100%);">
+    <div class="glow" style="top:-80px; right:-60px; width:360px; height:360px; background:radial-gradient(circle,#FDF3DC 0%,rgba(253,243,220,0) 70%);"></div>
+    <div class="glow" style="bottom:-100px; left:-80px; width:340px; height:340px; background:radial-gradient(circle,#FDF3DC 0%,rgba(253,243,220,0) 70%);"></div>
+    <div class="slide-inner" style="display:flex; align-items:center; gap:56px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:320px;">
+        <div class="pill"><span style="width:24px;height:24px;border-radius:7px;overflow:hidden;"><img src="/icon-192.png" alt=""></span> Tugether</div>
+        <h1 style="font-size:60px; font-weight:700; line-height:1.05; margin:26px 0 0; letter-spacing:-0.5px;">Save toward it,<br><span style="color:var(--gold-deep);">together.</span></h1>
+        <p style="font-size:19px; line-height:1.6; color:var(--ink-soft); max-width:480px; margin:20px 0 0; font-weight:600;">
+          A group savings app that pools money from any asset or chain into one jar, and locks it with rules the group controls, not a company.
+        </p>
+        <div style="display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;">
+          <span class="pill">UXmaxx Hackathon 2026</span>
+          <span class="pill">General Track</span>
+          <span class="pill">Solo builder, 6 weeks</span>
+        </div>
+      </div>
+      <div style="flex:none; text-align:center;">
+        <img src="/art/jar-hero.png" alt="Tugether coin jar mascot" style="height:340px; width:auto;" />
+      </div>
+    </div>
+    <div class="scroll-hint">
+      Scroll to explore
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8A8178" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </section>
+
+  <!-- ================= 2. PROBLEM ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">The problem</div>
+      <h2 style="font-size:38px; font-weight:600; margin:0 0 8px; max-width:720px;">Saving money as a group is still surprisingly painful.</h2>
+      <p style="color:var(--ink-soft); font-weight:600; max-width:640px; margin:0 0 34px; font-size:16px;">
+        Group gifts, trip funds, community pots. Someone always ends up chasing transfers across different banks, currencies, and apps, with no guarantee the money stays put until the goal is actually reached.
+      </p>
+      <div class="grid-3">
+        <div class="card" style="padding:26px;">
+          <div style="font-size:26px;">💸</div>
+          <h3 style="font-size:18px; font-weight:600; margin:12px 0 6px;">Fragmented transfers</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">Different banks, currencies, and apps for every member. Someone becomes the unpaid treasurer.</p>
+        </div>
+        <div class="card" style="padding:26px;">
+          <div style="font-size:26px;">🔓</div>
+          <h3 style="font-size:18px; font-weight:600; margin:12px 0 6px;">No real lock</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">Money sits in one person's account. Nothing stops it from being spent before the goal is hit.</p>
+        </div>
+        <div class="card" style="padding:26px;">
+          <div style="font-size:26px;">🧩</div>
+          <h3 style="font-size:18px; font-weight:600; margin:12px 0 6px;">Web3 makes it worse</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">Crypto tools fix the trust problem but demand a wallet, a chain, and a seed phrase from every member.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. SOLUTION ================= -->
+  <section class="slide" style="background:linear-gradient(160deg,#FFFCF4,#FDF3DC);">
+    <div class="slide-inner">
+      <div class="eyebrow">The solution</div>
+      <h2 style="font-size:38px; font-weight:600; margin:0 0 10px; max-width:760px;">Tugether pools any asset, locks it with the group's own rules, and never shows a single crypto term.</h2>
+      <div class="grid-3" style="margin-top:34px;">
+        <div class="card" style="padding:26px;">
+          <img src="/art/coin.png" alt="" style="height:44px; width:auto;" />
+          <h3 style="font-size:17px; font-weight:600; margin:14px 0 6px;">Pool from anywhere</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">Particle Universal Accounts (EIP 7702) merge deposits from any asset on any chain into one shared balance.</p>
+        </div>
+        <div class="card" style="padding:26px;">
+          <img src="/art/badge/badge-goal-completed.png" alt="" style="height:44px; width:auto;" />
+          <h3 style="font-size:17px; font-weight:600; margin:14px 0 6px;">Trustless, group governed lock</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">ZeroDev smart account permissions hold the funds. Release or refund happens only when the members agree, enforced by the contract itself.</p>
+        </div>
+        <div class="card" style="padding:26px;">
+          <img src="/art/cat/community.png" alt="" style="height:44px; width:auto;" />
+          <h3 style="font-size:17px; font-weight:600; margin:14px 0 6px;">Zero wallet onboarding</h3>
+          <p style="color:var(--ink-soft); font-size:14px; line-height:1.55; margin:0; font-weight:600;">Magic turns a Google or email login into a smart account behind the scenes. No seed phrase, ever.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. HOW IT WORKS ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">How it works</div>
+      <h2 style="font-size:36px; font-weight:600; margin:0 0 30px;">Three steps, and the celengan is live.</h2>
+      <div class="grid-3">
+        <div class="card" style="padding:30px 24px; text-align:center;">
+          <img src="/art/step-goal.png" alt="" style="height:96px; width:auto; margin:0 auto;" />
+          <div style="font-family:'Fredoka',sans-serif; font-weight:700; color:var(--gold-deep); margin-top:14px;">1</div>
+          <h3 style="font-size:18px; font-weight:600; margin:6px 0 6px;">Set a goal</h3>
+          <p style="color:var(--ink-soft); font-size:14px; font-weight:600; margin:0;">Name it, pick a category, set a target.</p>
+        </div>
+        <div class="card" style="padding:30px 24px; text-align:center;">
+          <img src="/art/step-invite.png" alt="" style="height:96px; width:auto; margin:0 auto;" />
+          <div style="font-family:'Fredoka',sans-serif; font-weight:700; color:var(--gold-deep); margin-top:14px;">2</div>
+          <h3 style="font-size:18px; font-weight:600; margin:6px 0 6px;">Invite friends</h3>
+          <p style="color:var(--ink-soft); font-size:14px; font-weight:600; margin:0;">One link. Anyone can join with just an email.</p>
+        </div>
+        <div class="card" style="padding:30px 24px; text-align:center;">
+          <img src="/art/step-save.png" alt="" style="height:96px; width:auto; margin:0 auto;" />
+          <div style="font-family:'Fredoka',sans-serif; font-weight:700; color:var(--gold-deep); margin-top:14px;">3</div>
+          <h3 style="font-size:18px; font-weight:600; margin:6px 0 6px;">Save together</h3>
+          <p style="color:var(--ink-soft); font-size:14px; font-weight:600; margin:0;">Chip in from anywhere. Watch the jar fill up in real time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. PRODUCT: DASHBOARD + CREATE ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">Product tour</div>
+      <h2 style="font-size:32px; font-weight:600; margin:0 0 26px;">A dashboard that feels alive, a creation flow that feels personal.</h2>
+      <div class="grid-2">
+        <div class="phone">
+          <div class="screen" style="padding:16px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px;">tugether</span>
+              <div style="display:flex; gap:6px;"><div class="avatar-dot"></div></div>
+            </div>
+            <h3 style="font-size:18px; font-weight:700; margin:14px 0 2px;">Hi there 👋</h3>
+            <p style="font-size:11px; color:var(--ink-soft); font-weight:700; margin:0 0 12px;">Here's how your goals are going.</p>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px;">
+              <div class="mini-card" style="text-align:center; padding:8px;"><div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--gold-deep);font-size:14px;">$5.2k</div><div style="font-size:8px;font-weight:800;color:var(--ink-soft);">SAVED</div></div>
+              <div class="mini-card" style="text-align:center; padding:8px;"><div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--gold-deep);font-size:14px;">3</div><div style="font-size:8px;font-weight:800;color:var(--ink-soft);">GOALS</div></div>
+              <div class="mini-card" style="text-align:center; padding:8px;"><div style="font-family:'Fredoka',sans-serif;font-weight:700;color:var(--gold-deep);font-size:14px;">1</div><div style="font-size:8px;font-weight:800;color:var(--ink-soft);">REACHED</div></div>
+            </div>
+            <div class="mini-card" style="background:linear-gradient(135deg,#FFFCF4,var(--gold-soft)); display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+              <img src="/art/jar-hero.png" style="height:44px; width:auto;" alt="" />
+              <div style="flex:1; min-width:0;"><div style="font-size:8px; font-weight:800; color:var(--gold-deep);">CLOSEST TO FINISH</div><div style="font-size:12px; font-weight:700;">Bali trip</div></div>
+            </div>
+            <div class="mini-card" style="display:flex; gap:10px; align-items:center;">
+              <img src="/art/cat/wedding.png" style="height:26px; width:26px;" alt="" />
+              <div style="flex:1;"><div style="font-size:11px; font-weight:700;">Sarah's wedding gift</div><div style="height:5px; background:var(--gold-soft); border-radius:4px; margin-top:4px;"><div style="width:70%; height:100%; background:var(--gold); border-radius:4px;"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:20px; font-weight:600; margin:0 0 10px;">Dashboard</h3>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0 0 20px;">A real dashboard, not a marketing splash. Live stats, the goal closest to finishing featured up top, and every goal you are part of in one scroll.</p>
+          <h3 style="font-size:20px; font-weight:600; margin:0 0 10px;">Create, with real categories</h3>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0;">Ten illustrated categories (trip, gift, wedding, community, and more), a target with quick presets, and a real GoalVault deployed on submit, straight from the creator's own smart account.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 6. SIGNATURE: COIN JAR ================= -->
+  <section class="slide" style="background:linear-gradient(160deg,#FFFCF4,#FDF3DC);">
+    <div class="slide-inner">
+      <div class="eyebrow">Signature interaction</div>
+      <h2 style="font-size:34px; font-weight:600; margin:0 0 8px;">The Coin Jar. The whole product, in one object.</h2>
+      <p style="color:var(--ink-soft); font-weight:600; max-width:640px; margin:0 0 30px; font-size:15px;">Every deposit drops a coin, the jar bumps, the pile rises, and the ring moves. When the group hits the target, the jar celebrates for real.</p>
+      <div class="grid-4">
+        <div class="card" style="padding:20px 14px; text-align:center;">
+          <img src="/art/jar-empty.png" alt="" style="height:120px; margin:0 auto;" />
+          <div style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; margin-top:8px;">Just started</div>
+        </div>
+        <div class="card" style="padding:20px 14px; text-align:center;">
+          <div style="width:110px; height:110px; margin:0 auto;" class="ring" style="--p:64;">
+            <div class="ring-inner" style="width:88px; height:88px; font-size:20px;">64%</div>
+          </div>
+          <div style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; margin-top:8px;">Filling up</div>
+        </div>
+        <div class="card" style="padding:20px 14px; text-align:center;">
+          <img src="/art/jar-celebrate.png" alt="" style="height:120px; margin:0 auto;" />
+          <div style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; margin-top:8px; color:var(--success);">Target reached</div>
+        </div>
+        <div class="card" style="padding:20px 14px; text-align:center; display:flex; flex-direction:column; justify-content:center;">
+          <div style="display:flex; justify-content:center; margin-bottom:8px;">
+            <div class="avatar-dot" style="margin-left:0;"></div>
+            <div class="avatar-dot" style="margin-left:-8px;"></div>
+            <div class="avatar-dot" style="margin-left:-8px;"></div>
+          </div>
+          <div style="font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px;">Everyone sees who chipped in</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 7. PRODUCT: COMMUNITY ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">Product tour</div>
+      <h2 style="font-size:32px; font-weight:600; margin:0 0 26px;">It feels social, not just transactional.</h2>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:19px; font-weight:600; margin:0 0 8px;">Activity and notifications</h3>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0 0 18px;">Every join, deposit, and target reached becomes a feed entry with a relative timestamp, so late joiners never feel lost.</p>
+          <h3 style="font-size:19px; font-weight:600; margin:0 0 8px;">Achievements</h3>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0 0 18px;">First goal, first deposit, first member, goal completed, super saver. Small nudges to keep saving fun.</p>
+          <h3 style="font-size:19px; font-weight:600; margin:0 0 8px;">English and Indonesian, on a switch</h3>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0;">Every screen is translated, toggled instantly from Settings, no reload required.</p>
+        </div>
+        <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+          <img src="/art/badge/badge-first-goal.png" style="height:64px;" alt="" />
+          <img src="/art/badge/badge-first-deposit.png" style="height:64px;" alt="" />
+          <img src="/art/badge/badge-first-member.png" style="height:64px;" alt="" />
+          <img src="/art/badge/badge-goal-completed.png" style="height:64px;" alt="" />
+          <img src="/art/badge/badge-super-saver.png" style="height:64px;" alt="" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 8. TECH STACK / TRUST ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">How it is built</div>
+      <h2 style="font-size:34px; font-weight:600; margin:0 0 26px;">One app, real on chain trust, zero backend custody.</h2>
+      <div class="grid-4" style="margin-bottom:22px;">
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">🪄</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">Magic</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Google or email login becomes the signer. No seed phrase.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">🌐</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">Particle Universal Accounts</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">EIP 7702 upgrade merges any chain deposit into one balance.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">🔐</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">ZeroDev</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Session keys and permissions deploy and govern each GoalVault.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">🔷</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">Arbitrum</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Settlement chain for every vault and every deposit.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">▲</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">Next.js + TypeScript</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Frontend and API routes in one app, deployed on Vercel.</p>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:22px;">🗂️</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">Supabase</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Light metadata only: names, links, cached balances. Never funds.</p>
+        </div>
+        <div class="card" style="padding:20px; grid-column: span 2; background:linear-gradient(135deg,#FFFCF4,var(--gold-soft));">
+          <div style="font-size:22px;">🏦</div>
+          <h3 style="font-size:15px; font-weight:700; margin:10px 0 4px;">GoalVault (per goal smart account)</h3>
+          <p style="font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0;">Every member's own smart account signs their deposit. Release or refund only happens once the group votes, on chain, enforced by the contract itself. No admin key, no backend switch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 9. WHY BLOCKCHAIN + FIT ================= -->
+  <section class="slide" style="background:linear-gradient(160deg,#FFFCF4,#FDF3DC);">
+    <div class="slide-inner">
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="eyebrow">Why this needs a chain</div>
+          <h2 style="font-size:28px; font-weight:600; margin:0 0 14px;">A spreadsheet split cannot do this.</h2>
+          <ul style="padding:0; margin:0; list-style:none; display:flex; flex-direction:column; gap:12px;">
+            <li class="card" style="padding:14px 16px; font-size:14px; font-weight:700;">✅ No single person ever holds the group's money</li>
+            <li class="card" style="padding:14px 16px; font-size:14px; font-weight:700;">✅ Funds cannot move unless the group agrees, by rule, not by promise</li>
+            <li class="card" style="padding:14px 16px; font-size:14px; font-weight:700;">✅ Any asset, any chain, merges into one balance automatically</li>
+            <li class="card" style="padding:14px 16px; font-size:14px; font-weight:700;">✅ Every deposit and release is verifiable on Arbitrum</li>
+          </ul>
+        </div>
+        <div>
+          <div class="eyebrow">Hackathon fit</div>
+          <h2 style="font-size:28px; font-weight:600; margin:0 0 14px;">Built for General Track, with real bonus depth.</h2>
+          <p style="color:var(--ink-soft); font-weight:600; font-size:14px; line-height:1.6; margin:0 0 16px;">General Track weighs UX and Creativity at 30% each, which is where this product is strongest. The Universal Accounts Track would have scored the same 7702 work against specialists doing nothing else, so it was the wrong fight to pick, on purpose.</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="pill">Magic bonus</span>
+            <span class="pill">Arbitrum bonus</span>
+            <span class="pill">ZeroDev subtrack</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 10. STATUS + ROADMAP ================= -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <div class="eyebrow">What is built today</div>
+          <h2 style="font-size:28px; font-weight:600; margin:0 0 16px;">Not a mockup. A working product.</h2>
+          <ul style="padding:0; margin:0; list-style:none; display:flex; flex-direction:column; gap:10px; font-size:14px; font-weight:700;">
+            <li>🟢 12 screens: landing, login, dashboard, create, goal detail, activity, notifications, achievements, profile, settings, offline and maintenance states</li>
+            <li>🟢 Real Magic Google login wired to a live smart account</li>
+            <li>🟢 GoalVaultFactory and per goal vault contract, with vote based release and refund</li>
+            <li>🟢 English and Indonesian across the entire app</li>
+            <li>🟡 Currently live on Arbitrum testnet while the mainnet deploy is finalized</li>
+          </ul>
+        </div>
+        <div>
+          <div class="eyebrow">What is next</div>
+          <h2 style="font-size:28px; font-weight:600; margin:0 0 16px;">The roadmap after this room.</h2>
+          <ul style="padding:0; margin:0; list-style:none; display:flex; flex-direction:column; gap:10px; font-size:14px; font-weight:700;">
+            <li>🎯 Arbitrum mainnet deploy with a clickable vault address and transaction hash</li>
+            <li>🎯 Deeper majority vote governance for release and refund</li>
+            <li>🎯 A leaderboard for the most active savers in a group</li>
+            <li>🎯 Multiple simultaneous assets per member contribution</li>
+            <li>🎯 A native mobile app</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 11. ASK / CLOSE ================= -->
+  <section class="slide" style="background:linear-gradient(180deg,#FFFCF4 0%,#FBFAF7 100%);">
+    <div class="glow" style="top:-60px; left:-60px; width:300px; height:300px; background:radial-gradient(circle,#FDF3DC 0%,rgba(253,243,220,0) 70%);"></div>
+    <div class="slide-inner" style="display:flex; align-items:center; gap:56px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:300px;">
+        <div class="eyebrow">Thank you</div>
+        <h2 style="font-size:38px; font-weight:600; margin:0 0 14px;">Try it. Start a goal, invite a friend, watch the jar fill.</h2>
+        <p style="color:var(--ink-soft); font-weight:600; font-size:15px; line-height:1.6; margin:0 0 26px; max-width:460px;">Built solo for UXmaxx Hackathon in six weeks. Every screen you saw is live in the app right now, not a rendering.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a class="btn-gold" href="/">Open the live app →</a>
+          <a class="btn-gold" href="https://github.com/tugether-app/frontend" style="background:var(--surface); color:var(--gold-deep); box-shadow:none; border:1.5px solid var(--line);">View source on GitHub</a>
+        </div>
+      </div>
+      <div style="flex:none;">
+        <img src="/art/hero-scene.png" alt="Tugether jar with friends" style="height:280px; width:auto;" />
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const deck = document.getElementById('deck');
+  const dotsEl = document.getElementById('dots');
+  const curEl = document.getElementById('cur');
+  document.getElementById('tot').textContent = slides.length;
+
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dot' + (i === 0 ? ' active' : '');
+    b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    b.addEventListener('click', () => slides[i].scrollIntoView({ behavior: 'smooth' }));
+    dotsEl.appendChild(b);
+  });
+  const dots = Array.from(dotsEl.children);
+
+  let current = 0;
+  function setCurrent(i) {
+    current = i;
+    dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+    curEl.textContent = i + 1;
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting && e.intersectionRatio > 0.5) {
+        setCurrent(slides.indexOf(e.target));
+      }
+    });
+  }, { root: deck, threshold: [0.5] });
+  slides.forEach((s) => io.observe(s));
+
+  function go(delta) {
+    const next = Math.min(slides.length - 1, Math.max(0, current + delta));
+    slides[next].scrollIntoView({ behavior: 'smooth' });
+  }
+  document.getElementById('nextBtn').addEventListener('click', () => go(1));
+  document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+
+  window.addEventListener('keydown', (e) => {
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(1); }
+    if (['ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); go(-1); }
+  });
+</script>
+
+</body>
+</html>
