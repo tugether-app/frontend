@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/Link";
 import type { ActivityEvent, EventType } from "@/lib/types";
 import { money, timeAgo } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/provider";

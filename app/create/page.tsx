@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { useRouter } from "next/navigation";
 /* eslint-disable @next/next/no-img-element */
 import type { Address } from "viem";
@@ -14,6 +14,7 @@ import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import { money } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
+import { withViewTransition } from "@/lib/viewTransition";
 import { deployGoalVault } from "@/lib/sdk/zerodev";
 import { useI18n } from "@/lib/i18n/provider";
 import { CATEGORIES, catIcon } from "@/lib/categories";
@@ -44,7 +45,7 @@ export default function CreatePage() {
 
   async function submit() {
     if (status === "anon") {
-      router.push("/login?next=/create");
+      withViewTransition(() => router.push("/login?next=/create"));
       return;
     }
     setTouched(true);

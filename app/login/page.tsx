@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Badge, Card, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { useAuth } from "@/lib/auth";
+import { withViewTransition } from "@/lib/viewTransition";
 import { useI18n } from "@/lib/i18n/provider";
 
 function LoginContent() {
@@ -15,7 +16,7 @@ function LoginContent() {
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
-    if (status === "authed") router.replace("/");
+    if (status === "authed") withViewTransition(() => router.replace("/"));
   }, [status, router]);
 
   function start() {

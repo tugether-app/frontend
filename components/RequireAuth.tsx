@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { withViewTransition } from "@/lib/viewTransition";
 import { Mascot } from "./Mascot";
 
 // Gate for member-only pages (dashboard, profile, activity, notifications,
@@ -15,7 +16,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "anon") router.replace("/welcome");
+    if (status === "anon") withViewTransition(() => router.replace("/welcome"));
   }, [status, router]);
 
   if (status !== "authed") {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { withViewTransition } from "@/lib/viewTransition";
 
 // Back affordance for focused flow pages (create, goal detail). Falls back to
 // home when there's no history to go back to.
@@ -8,8 +9,10 @@ export function BackButton({ fallback = "/" }: { fallback?: string }) {
   const router = useRouter();
 
   function back() {
-    if (typeof window !== "undefined" && window.history.length > 1) router.back();
-    else router.push(fallback);
+    withViewTransition(() => {
+      if (typeof window !== "undefined" && window.history.length > 1) router.back();
+      else router.push(fallback);
+    });
   }
 
   return (

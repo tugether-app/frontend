@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { useParams, useRouter } from "next/navigation";
 import type { Address } from "viem";
 import { Card, PillButton, Chip } from "@/components/ui";
@@ -20,6 +20,7 @@ import { api } from "@/lib/client";
 import { progressPct, money } from "@/lib/format";
 import { catIcon } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
+import { withViewTransition } from "@/lib/viewTransition";
 import {
   depositToVault,
   getUsdcBalance,
@@ -258,7 +259,7 @@ export default function GoalPage() {
     if (status !== "authed") {
       return (
         <PillButton
-          onClick={() => router.push(`/login?next=/g/${slug}`)}
+          onClick={() => withViewTransition(() => router.push(`/login?next=/g/${slug}`))}
           loading={status === "loading"}
           className="w-full py-4"
         >

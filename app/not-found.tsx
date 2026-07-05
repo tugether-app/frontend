@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { PillButton } from "@/components/ui";
 import { Mascot } from "@/components/Mascot";
 

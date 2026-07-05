@@ -312,6 +312,18 @@ a {
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
+/* Page-to-page navigation (lib/viewTransition.ts + components/Link.tsx): a
+   quick cross-dissolve on the whole page so routes never hard-cut. Browsers
+   without View Transitions support just skip straight to the new page,
+   where .page-in (app/template.tsx) still gives it an entrance. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.28s;
+    animation-timing-function: var(--ease-out);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -322,6 +334,11 @@ a {
     scroll-behavior: auto !important;
   }
   .float-slow {
+    animation: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
     animation: none !important;
   }
 }

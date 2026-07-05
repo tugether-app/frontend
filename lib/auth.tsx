@@ -13,6 +13,7 @@ import {
   startGoogleLogin,
 } from "./sdk/magic";
 import { getSmartAccountAddress, isLive as isZeroDevLive } from "./sdk/smartAccount";
+import { getAvatarPref, setAvatarPref } from "./avatarPref";
 
 export type AuthStatus = "loading" | "anon" | "authed";
 
@@ -31,6 +32,7 @@ interface AuthCtx {
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   getProvider: () => EIP1193Provider;
+  chooseAvatar: (seed: string) => void;
 }
 
 const Ctx = createContext<AuthCtx>({
@@ -43,6 +45,7 @@ const Ctx = createContext<AuthCtx>({
   getProvider: () => {
     throw new Error("Not signed in.");
   },
+  chooseAvatar: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -65,7 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const addr = await getSmartAccountAddress(getMagicProvider());
-      setUser({ addr, name: session.name, seed: addr, email: session.email });
+      const seed = getAvatarPref() || addr;
+      setUser({ addr, name: session.name, seed, email: session.email });
       setStatus("authed");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sign-in check failed.");
@@ -93,8 +97,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return getMagicProvider();
   }, [status]);
 
+  // Swap the displayed avatar instantly (no network round trip); persists
+  // per browser and is sent along on the next join/create so it shows up for
+  // other members too.
+  const chooseAvatar = useCallback((seed: string) => {
+    setAvatarPref(seed);
+    setUser((u) => (u ? { ...u, seed } : u));
+  }, []);
+
   return (
-    <Ctx.Provider value={{ status, user, error, loginWithGoogle, logout, refresh, getProvider }}>
+    <Ctx.Provider value={{ status, user, error, loginWithGoogle, logout, refresh, getProvider, chooseAvatar }}>
       {children}
     </Ctx.Provider>
   );

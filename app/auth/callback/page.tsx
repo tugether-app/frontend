@@ -6,6 +6,7 @@ import { Mascot } from "@/components/Mascot";
 import { useToast } from "@/components/Toast";
 import { completeGoogleLogin } from "@/lib/sdk/magic";
 import { useAuth } from "@/lib/auth";
+import { withViewTransition } from "@/lib/viewTransition";
 import { useI18n } from "@/lib/i18n/provider";
 
 export default function AuthCallbackPage() {
@@ -25,10 +26,10 @@ export default function AuthCallbackPage() {
         await refresh();
         const next = window.sessionStorage.getItem("tug_auth_next") ?? "/";
         window.sessionStorage.removeItem("tug_auth_next");
-        router.replace(next);
+        withViewTransition(() => router.replace(next));
       } catch {
         toast(t("login.cancelled"), "error");
-        router.replace("/login");
+        withViewTransition(() => router.replace("/login"));
       }
     })();
   }, [refresh, router, toast, t]);

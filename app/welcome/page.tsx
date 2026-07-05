@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Badge, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { useI18n } from "@/lib/i18n/provider";

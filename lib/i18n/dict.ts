@@ -137,6 +137,9 @@ const en: Dict = {
   "profile.settings": "Settings",
   "profile.signOut": "Sign out",
   "profile.signedOut": "Signed out",
+  "profile.chooseAvatar": "Change avatar",
+  "profile.chooseAvatarHint": "Pick the look you want to show your group.",
+  "profile.avatarUpdated": "Avatar updated",
   "profile.tagline": "No wallet, no seed phrase. Just email.",
 
   "settings.title": "Settings",
@@ -292,6 +295,9 @@ const id: Dict = {
   "profile.settings": "Pengaturan",
   "profile.signOut": "Keluar",
   "profile.signedOut": "Berhasil keluar",
+  "profile.chooseAvatar": "Ganti avatar",
+  "profile.chooseAvatarHint": "Pilih tampilan yang mau kamu tunjukkan ke grup.",
+  "profile.avatarUpdated": "Avatar diganti",
   "profile.tagline": "Tanpa wallet, tanpa seed phrase. Cukup email.",
 
   "settings.title": "Pengaturan",
