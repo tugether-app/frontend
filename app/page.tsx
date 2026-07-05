@@ -8,6 +8,8 @@ import { Avatar } from "@/components/Avatar";
 import { CoinJar } from "@/components/CoinJar";
 import { Mascot } from "@/components/Mascot";
 import { GoalCard } from "@/components/GoalCard";
+import { ListRow } from "@/components/ListRow";
+import { NotificationsPopover } from "@/components/NotificationsPopover";
 import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -44,22 +46,17 @@ function Dashboard() {
   const featured = (goals ?? [])
     .filter((g) => g.status === "open")
     .sort((a, b) => progressPct(b) - progressPct(a))[0];
+  // Dashboard only teases a couple of goals; the rest live behind "See all".
+  const PREVIEW_GOALS = 2;
+  const previewGoals = (goals ?? []).slice(0, PREVIEW_GOALS);
+  const hasMoreGoals = (goals?.length ?? 0) > PREVIEW_GOALS;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
       <header className="flex items-center justify-between">
         <WordMark />
         <div className="flex items-center gap-2">
-          <Link
-            href="/notifications"
-            aria-label={t("notif.title")}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface ring-1 ring-line transition hover:ring-gold active:scale-95"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M6 9a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6" stroke="#2B2622" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M10 20a2 2 0 004 0" stroke="#2B2622" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </Link>
+          <NotificationsPopover />
           <Link href="/profile" aria-label={t("nav.profile")} className="rounded-full ring-2 ring-line transition hover:ring-gold">
             <Avatar seed="you" size={36} />
           </Link>
@@ -131,11 +128,12 @@ function Dashboard() {
         </div>
       ) : (
         <div className="stagger mt-4 flex flex-col gap-3">
-          {goals.map((g, i) => (
+          {previewGoals.map((g, i) => (
             <div key={g.id} style={{ "--i": i } as React.CSSProperties}>
               <GoalCard goal={g} />
             </div>
           ))}
+          {hasMoreGoals && <ListRow href="/goals" label={t("dash.seeAllGoals")} />}
         </div>
       )}
 

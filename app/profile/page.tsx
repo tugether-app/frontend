@@ -110,7 +110,7 @@ function Profile() {
       </Card>
 
       <div className="mt-6 flex flex-col gap-3">
-        <ListRow href="/" icon={<GoalsIcon />} label={t("profile.myGoals")} />
+        <ListRow href="/goals" icon={<GoalsIcon />} label={t("profile.myGoals")} />
         <ListRow href="/activity" icon={<ActivityIcon />} label={t("profile.activity")} />
         <ListRow href="/settings" icon={<SettingsIcon />} label={t("profile.settings")} />
         <ListRowButton onClick={() => setAvatarOpen(true)} icon={<FaceIcon />} label={t("profile.chooseAvatar")} />
