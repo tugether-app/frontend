@@ -5,10 +5,10 @@ import { Magic } from "magic-sdk";
 import { OAuthExtension } from "@magic-ext/oauth";
 
 const hasKey = !!process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY;
-// Arbitrum Sepolia for now (dev/testing, matches the ZeroDev project chain).
-// Switch to Arbitrum One (42161, https://arb1.arbitrum.io/rpc) for the mainnet deploy.
-const ARBITRUM_RPC = process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc";
-const ARBITRUM_CHAIN_ID = 421614;
+// Arbitrum mainnet -- Particle Universal Accounts has no testnet, so this is
+// the live chain end to end (see CLAUDE.md Architecture Notes).
+const ARBITRUM_RPC = process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || "https://arb1.arbitrum.io/rpc";
+const ARBITRUM_CHAIN_ID = 42161;
 
 export function isLive(): boolean {
   return hasKey;
@@ -67,7 +67,47 @@ export async function magicLogout(): Promise<void> {
   await getMagic().user.logout();
 }
 
-// Hand off to lib/sdk/smartAccount.ts only -- never call SDKs from components.
+// Hand off to lib/sdk/particle.ts only -- never call SDKs from components.
 export function getMagicProvider() {
   return getMagic().rpcProvider;
+}
+
+export interface Eip7702Authorization {
+  contractAddress: string;
+  chainId: number;
+  nonce: number;
+  v: number;
+  r: string;
+  s: string;
+}
+
+// Signs an EIP-7702 delegation authorization tuple (address + chainId + nonce)
+// with the member's own Magic EOA. Used by lib/sdk/particle.ts to authorize
+// Particle's Universal Account delegate contract before a first transaction on
+// a given chain -- see magic.wallet.sign7702Authorization().
+export async function sign7702Authorization(args: {
+  contractAddress: string;
+  chainId: number;
+  nonce: number;
+}): Promise<Eip7702Authorization> {
+  const result = await getMagic().wallet.sign7702Authorization(args);
+  return {
+    contractAddress: result.contractAddress,
+    chainId: result.chainId,
+    nonce: result.nonce,
+    v: result.v,
+    r: result.r,
+    s: result.s,
+  };
+}
+
+// Raw personal_sign over arbitrary hex bytes (e.g. a Particle UniversalAccount
+// transaction's rootHash) via the standard EIP1193 provider -- equivalent to
+// ethers Wallet.signMessage(getBytes(hash)) used in Particle's own examples.
+export async function signRootHash(eoa: string, hashHex: string): Promise<string> {
+  const provider = getMagicProvider();
+  return provider.request({
+    method: "personal_sign",
+    params: [hashHex, eoa],
+  }) as Promise<string>;
 }

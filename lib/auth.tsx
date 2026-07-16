@@ -1,6 +1,9 @@
 "use client";
 
-// Real member identity: Magic Google login + a ZeroDev smart account address.
+// Real member identity: Magic Google login. The EOA Magic returns IS the
+// member's address -- with Particle Universal Accounts (EIP-7702), it gets
+// upgraded to a chain-abstracted account in place, no separate smart-account
+// address to compute or deploy (see lib/sdk/particle.ts).
 // Replaces the old lib/identity.ts (random per-browser fake address).
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
@@ -12,7 +15,6 @@ import {
   magicLogout,
   startGoogleLogin,
 } from "./sdk/magic";
-import { getSmartAccountAddress, isLive as isZeroDevLive } from "./sdk/smartAccount";
 import { getAvatarPref, setAvatarPref } from "./avatarPref";
 
 export type AuthStatus = "loading" | "anon" | "authed";
@@ -54,8 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!isMagicLive() || !isZeroDevLive()) {
-      setError(!isMagicLive() ? "Magic is not configured." : "ZeroDev is not configured.");
+    if (!isMagicLive()) {
+      setError("Magic is not configured.");
       setStatus("anon");
       setUser(null);
       return;
@@ -67,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         return;
       }
-      const addr = await getSmartAccountAddress(getMagicProvider());
+      const addr = session.eoa;
       const seed = getAvatarPref() || addr;
       setUser({ addr, name: session.name, seed, email: session.email });
       setStatus("authed");

@@ -30,7 +30,7 @@ import {
   executeRefund,
   claimRefund,
   type VaultState,
-} from "@/lib/sdk/zerodev";
+} from "@/lib/sdk/particle";
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 

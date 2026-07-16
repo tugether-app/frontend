@@ -41,7 +41,7 @@ const en: Dict = {
   "welcome.getStarted": "Get started",
   "welcome.noSeed": "No seed phrase. Nothing to install.",
   "welcome.builtFor": "Built for UXmaxx Hackathon · 2026",
-  "welcome.powered": "Powered by Particle Network · Magic · ZeroDev · Arbitrum",
+  "welcome.powered": "Powered by Particle Network · Magic · Arbitrum",
 
   "login.badge": "no wallet, just Google",
   "login.title": "Sign in to continue",
@@ -205,7 +205,7 @@ const id: Dict = {
   "welcome.getStarted": "Mulai sekarang",
   "welcome.noSeed": "Tanpa seed phrase. Tidak perlu install apa pun.",
   "welcome.builtFor": "Dibangun untuk UXmaxx Hackathon · 2026",
-  "welcome.powered": "Powered by Particle Network · Magic · ZeroDev · Arbitrum",
+  "welcome.powered": "Powered by Particle Network · Magic · Arbitrum",
 
   "login.badge": "tanpa wallet, cukup Google",
   "login.title": "Masuk untuk lanjut",

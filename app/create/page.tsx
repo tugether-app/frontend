@@ -15,7 +15,7 @@ import { api } from "@/lib/client";
 import { money } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
-import { deployGoalVault } from "@/lib/sdk/zerodev";
+import { deployGoalVault } from "@/lib/sdk/particle";
 import { useI18n } from "@/lib/i18n/provider";
 import { CATEGORIES, catIcon } from "@/lib/categories";
 
