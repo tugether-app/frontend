@@ -23,8 +23,8 @@ import { CATEGORIES, catIcon } from "@/lib/categories";
 // smart account (via the GoalVaultFactory), then POST /api/goals to save the
 // metadata, auto-join the creator, and show the share step with the invite slug.
 
-const PRESETS = [500, 1_000, 2_500, 5_000];
-const MIN_TARGET = 50;
+const PRESETS = [2, 5, 10, 20];
+const MIN_TARGET = 2;
 const MIN_NAME = 3;
 
 export default function CreatePage() {

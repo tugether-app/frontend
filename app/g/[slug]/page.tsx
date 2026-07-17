@@ -34,8 +34,8 @@ import {
 import { useI18n } from "@/lib/i18n/provider";
 import type { Goal } from "@/lib/types";
 
-const DEPOSITS = [25, 50, 100, 250];
-const MIN_DEPOSIT = 5;
+const DEPOSITS = [1, 2, 5, 10];
+const MIN_DEPOSIT = 1;
 
 type BusyKey = "join" | "deposit" | "vote-release" | "vote-refund" | "exec-release" | "exec-refund" | "claim" | null;
 
