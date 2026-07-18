@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
-import { BottomNav } from "@/components/BottomNav";
 import { GoalCard } from "@/components/GoalCard";
 import { Mascot } from "@/components/Mascot";
 import { RequireAuth } from "@/components/RequireAuth";
 import { api } from "@/lib/client";
+import { useCachedFetch } from "@/lib/useCachedFetch";
 import { useI18n } from "@/lib/i18n/provider";
-import type { Goal } from "@/lib/types";
 
 // Full goal list. The dashboard only teases the first couple with a "see
 // all" row; this is where the rest live.
@@ -22,18 +20,10 @@ export default function GoalsPage() {
 
 function GoalsList() {
   const { t } = useI18n();
-  const [goals, setGoals] = useState<Goal[] | null>(null);
-
-  useEffect(() => {
-    let on = true;
-    api.listGoals().then((g) => on && setGoals(g)).catch(() => on && setGoals([]));
-    return () => {
-      on = false;
-    };
-  }, []);
+  const goals = useCachedFetch("goals:all", () => api.listGoals());
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-6">
       <header className="flex items-center gap-3">
         <BackButton />
         <span className="font-display text-lg font-semibold text-ink">{t("dash.yourGoals")}</span>
@@ -60,8 +50,6 @@ function GoalsList() {
           ))}
         </div>
       )}
-
-      <BottomNav />
     </main>
   );
 }

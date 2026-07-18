@@ -1,15 +1,13 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
-import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { api } from "@/lib/client";
 import { NOTIF_TYPES } from "@/lib/activity";
+import { useCachedFetch } from "@/lib/useCachedFetch";
 import { useI18n } from "@/lib/i18n/provider";
-import type { ActivityEvent } from "@/lib/types";
 
 export default function NotificationsPage() {
   return (
@@ -21,21 +19,13 @@ export default function NotificationsPage() {
 
 function NotificationsView() {
   const { t } = useI18n();
-  const [events, setEvents] = useState<ActivityEvent[] | null>(null);
-
-  useEffect(() => {
-    let on = true;
-    api
-      .listActivity()
-      .then((e) => on && setEvents(e.filter((x) => NOTIF_TYPES.has(x.type))))
-      .catch(() => on && setEvents([]));
-    return () => {
-      on = false;
-    };
-  }, []);
+  // Same cache key as /activity: same underlying fetch, just filtered here,
+  // so visiting either page warms the other too.
+  const allEvents = useCachedFetch("activity:all", () => api.listActivity());
+  const events = allEvents?.filter((x) => NOTIF_TYPES.has(x.type)) ?? null;
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-6">
       <header className="flex items-center gap-3">
         <BackButton fallback="/" />
         <span className="font-display text-lg font-semibold text-ink">{t("notif.title")}</span>
@@ -58,8 +48,6 @@ function NotificationsView() {
           <ActivityFeed events={events} />
         </div>
       )}
-
-      <BottomNav />
     </main>
   );
 }

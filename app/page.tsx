@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "@/components/Link";
 import { PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
@@ -14,9 +13,9 @@ import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
 import { api } from "@/lib/client";
+import { useCachedFetch } from "@/lib/useCachedFetch";
 import { money, progressPct } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/provider";
-import type { Goal } from "@/lib/types";
 
 // Home = dashboard: greeting, stats, a featured goal, and your goals list.
 // Member-only: RequireAuth sends anonymous visitors to /welcome instead.
@@ -30,15 +29,7 @@ export default function Home() {
 
 function Dashboard() {
   const { t } = useI18n();
-  const [goals, setGoals] = useState<Goal[] | null>(null);
-
-  useEffect(() => {
-    let on = true;
-    api.listGoals().then((g) => on && setGoals(g)).catch(() => on && setGoals([]));
-    return () => {
-      on = false;
-    };
-  }, []);
+  const goals = useCachedFetch("goals:all", () => api.listGoals());
 
   const totalSaved = (goals ?? []).reduce((s, g) => s + g.collectedAmount, 0);
   const reached = (goals ?? []).filter((g) => g.status !== "open").length;

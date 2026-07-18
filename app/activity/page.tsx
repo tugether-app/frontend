@@ -1,14 +1,12 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState } from "react";
 import { BackButton } from "@/components/BackButton";
-import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { api } from "@/lib/client";
+import { useCachedFetch } from "@/lib/useCachedFetch";
 import { useI18n } from "@/lib/i18n/provider";
-import type { ActivityEvent } from "@/lib/types";
 
 export default function ActivityPage() {
   return (
@@ -20,18 +18,10 @@ export default function ActivityPage() {
 
 function ActivityView() {
   const { t } = useI18n();
-  const [events, setEvents] = useState<ActivityEvent[] | null>(null);
-
-  useEffect(() => {
-    let on = true;
-    api.listActivity().then((e) => on && setEvents(e)).catch(() => on && setEvents([]));
-    return () => {
-      on = false;
-    };
-  }, []);
+  const events = useCachedFetch("activity:all", () => api.listActivity());
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-6">
       <header className="flex items-center gap-3">
         <BackButton fallback="/profile" />
         <span className="font-display text-lg font-semibold text-ink">{t("activity.title")}</span>
@@ -54,8 +44,6 @@ function ActivityView() {
           <ActivityFeed events={events} />
         </div>
       )}
-
-      <BottomNav />
     </main>
   );
 }
