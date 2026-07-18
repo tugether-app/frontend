@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "@/components/Link";
 import { api } from "@/lib/client";
 import { money, timeAgo } from "@/lib/format";
@@ -14,9 +14,12 @@ const PREVIEW_COUNT = 4;
 // panel is the only way into the full /notifications page.
 export function NotificationsPopover() {
   const { t } = useI18n();
+  const titleId = useId();
   const [open, setOpen] = useState(false);
   const [events, setEvents] = useState<ActivityEvent[] | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Fetch eagerly (not just on open) so the unread-style dot can show right away.
   useEffect(() => {
@@ -32,11 +35,18 @@ export function NotificationsPopover() {
 
   useEffect(() => {
     if (!open) return;
+    // Move focus in for keyboard users (e.g. opened via Enter/Space on the bell).
+    const firstLink = panelRef.current?.querySelector<HTMLElement>("a");
+    firstLink?.focus();
+
     function onDocClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        bellRef.current?.focus();
+      }
     }
     document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onKey);
@@ -52,10 +62,12 @@ export function NotificationsPopover() {
   return (
     <div className="relative" ref={ref}>
       <button
+        ref={bellRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={t("notif.title")}
         aria-expanded={open}
+        aria-haspopup="true"
         className="relative flex h-10 w-10 items-center justify-center rounded-full bg-surface ring-1 ring-line transition hover:ring-gold active:scale-95"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -67,12 +79,15 @@ export function NotificationsPopover() {
 
       {open && (
         <div
+          ref={panelRef}
           role="dialog"
-          aria-label={t("notif.title")}
+          aria-labelledby={titleId}
           className="popover-in absolute right-0 top-12 z-40 w-80 max-w-[88vw] overflow-hidden rounded-card border border-line bg-surface shadow-card-lg"
         >
           <div className="px-4 pb-2 pt-3.5">
-            <span className="font-display text-[15px] font-semibold text-ink">{t("notif.title")}</span>
+            <span id={titleId} className="font-display text-[15px] font-semibold text-ink">
+              {t("notif.title")}
+            </span>
           </div>
 
           {events === null ? (

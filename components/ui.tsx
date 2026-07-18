@@ -2,7 +2,7 @@
 // Buttons are chunky "candy" 3D: a solid gold-deep base edge that the button
 // presses into on active. Matches the UI reference.
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 type PillVariant = "gold" | "light" | "ghost" | "danger";
 
@@ -31,19 +31,13 @@ export function Spinner({ className = "" }: { className?: string }) {
   );
 }
 
-export function PillButton({
-  variant = "gold",
-  loading = false,
-  className = "",
-  children,
-  disabled,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: PillVariant;
-  loading?: boolean;
-}) {
+export const PillButton = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & { variant?: PillVariant; loading?: boolean }
+>(function PillButton({ variant = "gold", loading = false, className = "", children, disabled, ...props }, ref) {
   return (
     <button
+      ref={ref}
       disabled={disabled || loading}
       aria-busy={loading}
       className={`${base} px-7 py-3.5 text-[17px] ${variants[variant]} ${className}`}
@@ -59,7 +53,7 @@ export function PillButton({
       )}
     </button>
   );
-}
+});
 
 // Selectable amount/filter chip (e.g. Rp 50rb). Gold when active.
 export function Chip({

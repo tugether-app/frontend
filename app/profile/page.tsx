@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import Link from "@/components/Link";
 import { useRouter } from "next/navigation";
 import { isAddress, type Address } from "viem";
@@ -17,6 +17,7 @@ import { useToast } from "@/components/Toast";
 import { useI18n } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
+import { useDialog } from "@/lib/useDialog";
 import { money } from "@/lib/format";
 import { sendFunds, getUsdcBalance, getUnifiedBalance, VaultFlowError, type UnifiedBalance } from "@/lib/sdk/particle";
 
@@ -123,18 +124,9 @@ function Profile() {
     };
   }, [sheet, user]);
 
-  // Sheet: lock body scroll + close on Escape.
-  useEffect(() => {
-    if (!sheet) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheet(false);
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [sheet]);
+  const closeWithdrawSheet = useCallback(() => setSheet(false), []);
+  const withdrawDialogRef = useDialog<HTMLDivElement>(sheet, closeWithdrawSheet);
+  const withdrawTitleId = useId();
 
   const destOk = isAddress(dest.trim());
   const amountOk = typeof amount === "number" && amount > 0 && (balance === null || amount <= balance);
@@ -270,16 +262,18 @@ function Profile() {
       {sheet && (
         <div
           className="backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 py-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("profile.withdraw.title")}
-          onClick={() => setSheet(false)}
+          onClick={closeWithdrawSheet}
         >
           <div
+            ref={withdrawDialogRef}
             className="rise-in max-h-[88vh] w-full max-w-md overflow-y-auto rounded-card border border-line bg-surface p-6 shadow-card-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={withdrawTitleId}
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-display text-xl font-semibold text-ink">{t("profile.withdraw.title")}</h2>
+            <h2 id={withdrawTitleId} className="font-display text-xl font-semibold text-ink">{t("profile.withdraw.title")}</h2>
             <p className="mt-1 text-xs font-semibold text-ink-soft">
               {balance !== null ? t("profile.withdraw.balance", { v: money(balance) }) : t("profile.withdraw.loading")}
             </p>

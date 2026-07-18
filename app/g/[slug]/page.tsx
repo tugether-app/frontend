@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useId, useRef, useState, useCallback } from "react";
 import Link from "@/components/Link";
 import { useParams, useRouter } from "next/navigation";
 import type { Address } from "viem";
@@ -21,6 +21,7 @@ import { progressPct, money } from "@/lib/format";
 import { catIcon } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
+import { useDialog } from "@/lib/useDialog";
 import {
   depositToVault,
   getUsdcBalance,
@@ -113,18 +114,9 @@ export default function GoalPage() {
     };
   }, [sheet, me]);
 
-  // Sheet: lock body scroll + close on Escape.
-  useEffect(() => {
-    if (!sheet) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheet(false);
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [sheet]);
+  const closeSheet = useCallback(() => setSheet(false), []);
+  const depositDialogRef = useDialog<HTMLDivElement>(sheet, closeSheet);
+  const depositTitleId = useId();
 
   if (phase === "loading") {
     return (
@@ -503,16 +495,18 @@ export default function GoalPage() {
       {sheet && (
         <div
           className="backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Add deposit"
-          onClick={() => setSheet(false)}
+          onClick={closeSheet}
         >
           <div
+            ref={depositDialogRef}
             className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={depositTitleId}
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-display text-xl font-semibold text-ink">{t("goal.howMuch")}</h2>
+            <h2 id={depositTitleId} className="font-display text-xl font-semibold text-ink">{t("goal.howMuch")}</h2>
             {balance !== null && (
               <p className="mt-1 text-xs font-semibold text-ink-soft">{t("goal.balance", { v: money(balance) })}</p>
             )}

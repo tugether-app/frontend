@@ -1,31 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useId } from "react";
 import { Avatar } from "./Avatar";
 import { useToast } from "./Toast";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n/provider";
+import { useDialog } from "@/lib/useDialog";
 import { AVATAR_PRESETS } from "@/lib/avatarPref";
 
 // Bottom sheet: pick from the app's illustrated avatar styles. Same dialog
-// pattern as the deposit sheet on the goal page (Esc to close, body scroll
-// locked while open).
+// pattern as the deposit sheet on the goal page (Esc closes, focus is
+// trapped inside and returns to the trigger on close -- see lib/useDialog).
 export function AvatarPicker({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, chooseAvatar } = useAuth();
   const toast = useToast();
   const { t } = useI18n();
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [open, onClose]);
+  const titleId = useId();
+  const dialogRef = useDialog<HTMLDivElement>(open, onClose);
 
   if (!open) return null;
 
@@ -36,18 +27,19 @@ export function AvatarPicker({ open, onClose }: { open: boolean; onClose: () => 
   }
 
   return (
-    <div
-      className="backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t("profile.chooseAvatar")}
-      onClick={onClose}
-    >
+    <div className="backdrop-in fixed inset-0 z-40 flex items-end justify-center bg-ink/30 px-4 pb-4" onClick={onClose}>
       <div
+        ref={dialogRef}
         className="sheet-up w-full max-w-md rounded-card border border-line bg-surface p-6 shadow-card-lg"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="font-display text-xl font-semibold text-ink">{t("profile.chooseAvatar")}</h2>
+        <h2 id={titleId} className="font-display text-xl font-semibold text-ink">
+          {t("profile.chooseAvatar")}
+        </h2>
         <p className="mt-1 text-sm font-medium text-ink-soft">{t("profile.chooseAvatarHint")}</p>
         <div className="mt-5 grid grid-cols-3 gap-3">
           {AVATAR_PRESETS.map((seed) => {
