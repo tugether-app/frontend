@@ -206,8 +206,11 @@ a {
     opacity: 1;
   }
 }
+/* No fill-mode, same reasoning as .page-in above: don't leave a lingering
+   transform on whatever this wraps in case a future page nests a fixed
+   element inside it. */
 .rise-in {
-  animation: rise-in 0.5s var(--ease-out) both;
+  animation: rise-in 0.5s var(--ease-out);
 }
 
 @keyframes page-in {
@@ -220,8 +223,17 @@ a {
     opacity: 1;
   }
 }
+/* No fill-mode (defaults to none): the transform must NOT persist after the
+   animation ends. This div (app/template.tsx) wraps every page including
+   BottomNav and every sticky/fixed bar and dialog. `both`/`forwards` would
+   keep a `transform: translateY(0) scale(1)` on it forever -- identity in
+   value, but any transform at all makes the element a new containing block
+   for `position: fixed` descendants (CSS spec). Every "fixed" element on the
+   page then anchors to this div's full scrollable height instead of the
+   viewport, which is exactly why BottomNav only appeared after scrolling to
+   the bottom of the content on any page taller than one screen. */
 .page-in {
-  animation: page-in 0.42s var(--ease-out) both;
+  animation: page-in 0.42s var(--ease-out);
 }
 
 /* Bottom sheet: backdrop fades, panel slides up with a spring. */
