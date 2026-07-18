@@ -19,7 +19,6 @@ import {
   createPublicClient,
   http,
   serializeSignature,
-  parseEventLogs,
   type Address,
   type EIP1193Provider,
 } from "viem";
@@ -31,6 +30,7 @@ import {
   UA_TRANSACTION_STATUS,
   UNIVERSAL_ACCOUNT_VERSION,
   type IUniversalTransaction,
+  type ITransaction,
   type EIP7702Authorization as ParticleAuthorization,
 } from "@particle-network/universal-account-sdk";
 import { sign7702Authorization, signRootHash } from "./magic";
@@ -142,9 +142,22 @@ function publicClient() {
   return createPublicClient({ chain: arbitrum, transport: http(ARBITRUM_RPC) });
 }
 
+// Marks an error message as ours -- safe to show verbatim in the UI. Anything
+// that bubbles up from a third-party SDK (Particle, Magic, viem, the RPC
+// itself) is NOT wrapped in this, so callers must never display raw upstream
+// error text -- it could be anything, including misleading or alarming
+// wording we don't control. Log the raw error for debugging instead; show
+// users a generic, translated fallback.
+export class VaultFlowError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "VaultFlowError";
+  }
+}
+
 function requireConfig() {
   if (!hasKey) {
-    throw new Error(
+    throw new VaultFlowError(
       "Particle is not configured. Set NEXT_PUBLIC_PARTICLE_PROJECT_ID/CLIENT_KEY/APP_ID.",
     );
   }
@@ -153,7 +166,7 @@ function requireConfig() {
 async function getEoa(eip1193Provider: EIP1193Provider): Promise<Address> {
   const accounts = (await eip1193Provider.request({ method: "eth_accounts" })) as string[];
   const eoa = accounts[0];
-  if (!eoa) throw new Error("No signed-in account found.");
+  if (!eoa) throw new VaultFlowError("No signed-in account found.");
   return eoa as Address;
 }
 
@@ -164,43 +177,27 @@ function getUniversalAccount(eoa: Address): UniversalAccount {
     projectClientKey: CLIENT_KEY!,
     projectAppUuid: APP_ID!,
     ownerAddress: eoa,
+    // Per Particle's official UA SDK reference (ua-reference/web/initialization):
+    // `name` must be the literal string "UNIVERSAL", `version` must be the
+    // SDK's own UNIVERSAL_ACCOUNT_VERSION constant. An earlier guess used
+    // "UniversalAccount" for `name` -- that mismatch is the likely cause of a
+    // "System maintenance..." (-32801) rejection from universal-rpc.particle.network
+    // seen during live testing.
     smartAccountOptions: {
-      name: "UniversalAccount",
+      useEIP7702: true,
+      name: "UNIVERSAL",
       version: UNIVERSAL_ACCOUNT_VERSION,
       ownerAddress: eoa,
-      useEIP7702: true,
     },
   });
 }
 
-// Builds a Universal Transaction from one or more EVM calls on Arbitrum, signs
-// any first-time EIP-7702 delegation authorizations plus the transaction's
-// rootHash with the member's Magic EOA, and submits it. Returns once Particle
-// reports the transaction finished (polls -- cross-chain routing isn't
-// synchronous like a single UserOp was under ZeroDev).
-async function executeUniversalTransaction(args: {
-  eip1193Provider: EIP1193Provider;
-  calls: { to: Address; data: `0x${string}`; value?: bigint }[];
-  expectUsdc?: number; // display units (dollars) of USDC this call needs available on Arbitrum
-}): Promise<{ txHash: string; transactionId: string }> {
-  requireConfig();
-  const eoa = await getEoa(args.eip1193Provider);
-  const ua = getUniversalAccount(eoa);
-
-  const payload: IUniversalTransaction = {
-    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
-    expectTokens: args.expectUsdc
-      ? [{ type: SUPPORTED_TOKEN_TYPE.USDC, amount: String(args.expectUsdc) }]
-      : [],
-    transactions: args.calls.map((c) => ({
-      to: c.to,
-      data: c.data,
-      value: c.value !== undefined ? `0x${c.value.toString(16)}` : undefined,
-    })),
-  };
-
-  const transaction = await ua.createUniversalTransaction(payload);
-
+// Signs any first-time EIP-7702 delegation authorizations plus the transaction's
+// rootHash with the member's Magic EOA, submits it, and waits until Particle
+// reports it finished (polls -- cross-chain routing isn't synchronous like a
+// single UserOp was under ZeroDev). Shared by every write path: contract calls
+// (createUniversalTransaction) and plain transfers (createTransferTransaction).
+async function signAndSubmit(ua: UniversalAccount, eoa: Address, transaction: ITransaction): Promise<void> {
   // First transaction per chain needs a signed EIP-7702 delegation authorization;
   // subsequent ones are already delegated (userOp.eip7702Delegated === true).
   const authorizations: ParticleAuthorization[] = [];
@@ -226,8 +223,34 @@ async function executeUniversalTransaction(args: {
 
   const signature = await signRootHash(eoa, transaction.rootHash);
   await ua.sendTransaction(transaction, signature, authorizations.length ? authorizations : undefined);
-
   await waitForFinished(ua, transaction.transactionId);
+}
+
+// Builds a Universal Transaction from one or more EVM calls on Arbitrum, signs
+// and submits it. Returns once Particle reports the transaction finished.
+async function executeUniversalTransaction(args: {
+  eip1193Provider: EIP1193Provider;
+  calls: { to: Address; data: `0x${string}`; value?: bigint }[];
+  expectUsdc?: number; // display units (dollars) of USDC this call needs available on Arbitrum
+}): Promise<{ txHash: string; transactionId: string }> {
+  requireConfig();
+  const eoa = await getEoa(args.eip1193Provider);
+  const ua = getUniversalAccount(eoa);
+
+  const payload: IUniversalTransaction = {
+    chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE,
+    expectTokens: args.expectUsdc
+      ? [{ type: SUPPORTED_TOKEN_TYPE.USDC, amount: String(args.expectUsdc) }]
+      : [],
+    transactions: args.calls.map((c) => ({
+      to: c.to,
+      data: c.data,
+      value: c.value !== undefined ? `0x${c.value.toString(16)}` : undefined,
+    })),
+  };
+
+  const transaction = await ua.createUniversalTransaction(payload);
+  await signAndSubmit(ua, eoa, transaction);
   const txHash = await resolveArbitrumTxHash(ua, transaction.transactionId, transaction.rootHash);
 
   return { txHash, transactionId: transaction.transactionId };
@@ -246,11 +269,11 @@ async function waitForFinished(ua: UniversalAccount, transactionId: string): Pro
     const status = result?.status ?? result?.transactionStatus;
     if (status === UA_TRANSACTION_STATUS.FINISHED) return;
     if (typeof status === "number" && FAILED.has(status)) {
-      throw new Error("Particle transaction failed.");
+      throw new VaultFlowError("Particle transaction failed.");
     }
     await new Promise((r) => setTimeout(r, 2000));
   }
-  throw new Error("Particle transaction timed out waiting for confirmation.");
+  throw new VaultFlowError("Particle transaction timed out waiting for confirmation.");
 }
 
 // Best-effort extraction of the actual Arbitrum tx hash for the finished
@@ -263,15 +286,39 @@ async function resolveArbitrumTxHash(ua: UniversalAccount, transactionId: string
   return fromUserOps ?? result?.transactionHash ?? result?.hash ?? rootHash;
 }
 
+// All GoalVault addresses this creator has ever deployed via the factory, read
+// from the factory's `VaultCreated` events (creator is an indexed topic, so the
+// RPC filters server-side). Used to identify a freshly created vault without
+// depending on Particle v2's opaque getTransaction() tx-hash shape.
+async function getCreatorVaults(creator: Address): Promise<Address[]> {
+  if (!FACTORY_ADDRESS) return [];
+  const pc = publicClient();
+  const logs = await pc.getContractEvents({
+    address: FACTORY_ADDRESS,
+    abi: FACTORY_ABI,
+    eventName: "VaultCreated",
+    args: { creator },
+    fromBlock: 0n,
+    toBlock: "latest",
+  });
+  return logs.map((l) => l.args.vault as Address);
+}
+
 // Deploys a fresh GoalVault via the factory. Pure contract call, no token
 // movement, so expectTokens is empty.
+//
+// Particle UA v2 settles the call on Arbitrum but getTransaction() doesn't
+// surface the settled Arbitrum tx hash in a documented shape, so instead of
+// reading a receipt by hash we locate the new vault via the factory's
+// `VaultCreated(creator)` events: snapshot the creator's existing vaults, run
+// the transaction, then poll until a vault appears that wasn't there before.
 export async function deployGoalVault(args: {
   eip1193Provider: EIP1193Provider;
   creator: Address;
   targetAmount: number; // display units (dollars), matches Goal.targetAmount
 }): Promise<{ vaultAddr: string }> {
   if (!FACTORY_ADDRESS || !USDC_ADDRESS) {
-    throw new Error("GoalVault factory is not configured. Set NEXT_PUBLIC_GOALVAULT_FACTORY_ADDRESS.");
+    throw new VaultFlowError("GoalVault factory is not configured. Set NEXT_PUBLIC_GOALVAULT_FACTORY_ADDRESS.");
   }
   const targetUnits = BigInt(Math.round(args.targetAmount * 1_000_000)); // USDC has 6 decimals
 
@@ -281,18 +328,23 @@ export async function deployGoalVault(args: {
     args: [USDC_ADDRESS, targetUnits, args.creator],
   });
 
-  const { txHash } = await executeUniversalTransaction({
+  const before = new Set((await getCreatorVaults(args.creator)).map((a) => a.toLowerCase()));
+
+  await executeUniversalTransaction({
     eip1193Provider: args.eip1193Provider,
     calls: [{ to: FACTORY_ADDRESS, data }],
   });
 
-  const pc = publicClient();
-  const receipt = await pc.getTransactionReceipt({ hash: txHash as `0x${string}` });
-  const logs = receipt.logs.filter((l) => l.address.toLowerCase() === FACTORY_ADDRESS.toLowerCase());
-  const [event] = parseEventLogs({ abi: FACTORY_ABI, eventName: "VaultCreated", logs });
-  if (!event) throw new Error("Vault deployment did not emit VaultCreated.");
+  // Poll for the newly created vault (indexing lag between Particle reporting
+  // "finished" and the event being queryable on the public RPC).
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const current = await getCreatorVaults(args.creator);
+    const fresh = current.find((v) => !before.has(v.toLowerCase()));
+    if (fresh) return { vaultAddr: fresh };
+    await new Promise((r) => setTimeout(r, 2000));
+  }
 
-  return { vaultAddr: event.args.vault };
+  throw new VaultFlowError("Vault was created on-chain but could not be located yet. Refresh and check your goals.");
 }
 
 // Approves and deposits in one Universal Transaction (batched calls), from the
@@ -302,7 +354,7 @@ export async function depositToVault(args: {
   vaultAddr: Address;
   amount: number; // display units (dollars), matches Goal amounts today
 }): Promise<{ txHash: string }> {
-  if (!USDC_ADDRESS) throw new Error("Particle is not configured.");
+  if (!USDC_ADDRESS) throw new VaultFlowError("Particle is not configured.");
   const units = BigInt(Math.round(args.amount * 1_000_000)); // USDC has 6 decimals
 
   const approveData = encodeFunctionData({
@@ -419,6 +471,30 @@ export async function claimRefund(args: {
   return { txHash };
 }
 
+// Sends `amount` USDC from the signed-in user's Universal Account to any address
+// -- e.g. moving funds back out to a personal MetaMask wallet after testing, or
+// a treasurer forwarding a released goal onward. Particle sources the USDC from
+// the UA's balance; here the receiver is paid in USDC on Arbitrum.
+export async function sendFunds(args: {
+  eip1193Provider: EIP1193Provider;
+  to: Address;
+  amount: number; // display units (dollars) of USDC
+}): Promise<{ transactionId: string }> {
+  requireConfig();
+  if (!USDC_ADDRESS) throw new VaultFlowError("Particle is not configured.");
+  const eoa = await getEoa(args.eip1193Provider);
+  const ua = getUniversalAccount(eoa);
+
+  const transaction = await ua.createTransferTransaction({
+    token: { chainId: CHAIN_ID.ARBITRUM_MAINNET_ONE, address: USDC_ADDRESS },
+    amount: String(args.amount),
+    receiver: args.to,
+  });
+  await signAndSubmit(ua, eoa, transaction);
+
+  return { transactionId: transaction.transactionId };
+}
+
 // Read-only: how much USDC `addr` currently holds on Arbitrum, in display units
 // (dollars). No signer needed -- just a public read. Particle UA aggregates
 // cross-chain balance too (ua.getPrimaryAssets()) but the vault only ever sees
@@ -433,6 +509,29 @@ export async function getUsdcBalance(addr: Address): Promise<number> {
     args: [addr],
   });
   return Number(units) / 1_000_000;
+}
+
+export interface UnifiedBalance {
+  totalUsd: number; // combined value across every chain, in USD
+  assets: { symbol: string; amount: number; amountUsd: number }[];
+}
+
+// The member's unified Universal Account balance -- all assets across all chains
+// aggregated into one USD figure, via Particle's getPrimaryAssets(). This is the
+// "one balance everywhere" view: e.g. USDC on Base + ETH on Arbitrum shown as a
+// single total. Read-only (no signing); builds the UA from the address alone.
+export async function getUnifiedBalance(addr: Address): Promise<UnifiedBalance> {
+  requireConfig();
+  const ua = getUniversalAccount(addr);
+  const res = await ua.getPrimaryAssets();
+  const assets = (res?.assets ?? [])
+    .map((a) => ({
+      symbol: String(a.tokenType).toUpperCase(),
+      amount: a.amount,
+      amountUsd: a.amountInUSD,
+    }))
+    .filter((a) => a.amount > 0);
+  return { totalUsd: res?.totalAmountInUSD ?? 0, assets };
 }
 
 export function isLive(): boolean {

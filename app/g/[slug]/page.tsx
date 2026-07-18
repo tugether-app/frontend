@@ -29,6 +29,7 @@ import {
   executeRelease,
   executeRefund,
   claimRefund,
+  VaultFlowError,
   type VaultState,
 } from "@/lib/sdk/particle";
 import { useI18n } from "@/lib/i18n/provider";
@@ -191,7 +192,8 @@ export default function GoalPage() {
       setAmount("");
       toast(t("goal.depositOk"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Could not deposit", "error");
+      console.error("deposit failed:", e);
+      toast(e instanceof VaultFlowError ? e.message : "Could not deposit", "error");
     } finally {
       setBusy(null);
     }
@@ -206,7 +208,8 @@ export default function GoalPage() {
       await refreshVaultState(goal);
       toast(t("goal.vote.ok.vote"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Vote failed", "error");
+      console.error("vote failed:", e);
+      toast(e instanceof VaultFlowError ? e.message : "Vote failed", "error");
     } finally {
       setBusy(null);
     }
@@ -220,7 +223,8 @@ export default function GoalPage() {
       await refreshVaultState(goal);
       toast(t("goal.vote.ok.release"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Release failed", "error");
+      console.error("release failed:", e);
+      toast(e instanceof VaultFlowError ? e.message : "Release failed", "error");
     } finally {
       setBusy(null);
     }
@@ -234,7 +238,8 @@ export default function GoalPage() {
       await refreshVaultState(goal);
       toast(t("goal.vote.ok.refund"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Refund failed", "error");
+      console.error("refund failed:", e);
+      toast(e instanceof VaultFlowError ? e.message : "Refund failed", "error");
     } finally {
       setBusy(null);
     }
@@ -248,7 +253,8 @@ export default function GoalPage() {
       await refreshVaultState(goal);
       toast(t("goal.vote.ok.claim"), "success");
     } catch (e) {
-      toast(e instanceof Error ? e.message : "Claim failed", "error");
+      console.error("claim failed:", e);
+      toast(e instanceof VaultFlowError ? e.message : "Claim failed", "error");
     } finally {
       setBusy(null);
     }
