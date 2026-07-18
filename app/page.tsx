@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "@/components/Link";
 import { PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
@@ -8,11 +9,13 @@ import { CoinJar } from "@/components/CoinJar";
 import { Mascot } from "@/components/Mascot";
 import { GoalCard } from "@/components/GoalCard";
 import { NotificationsPopover } from "@/components/NotificationsPopover";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
 import { api } from "@/lib/client";
 import { useCachedFetch } from "@/lib/useCachedFetch";
+import { hasSeenTour, markTourSeen } from "@/lib/onboarding";
 import { money, progressPct } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/provider";
 
@@ -29,6 +32,16 @@ export default function Home() {
 function Dashboard() {
   const { t } = useI18n();
   const goals = useCachedFetch("goals:all", () => api.listGoals());
+  const [tourOpen, setTourOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hasSeenTour()) setTourOpen(true);
+  }, []);
+
+  function finishTour() {
+    markTourSeen();
+    setTourOpen(false);
+  }
 
   const totalSaved = (goals ?? []).reduce((s, g) => s + g.collectedAmount, 0);
   const reached = (goals ?? []).filter((g) => g.status !== "open").length;
@@ -127,11 +140,9 @@ function Dashboard() {
         )
       )}
 
-      <Link href="/welcome" className="mt-8 text-center text-xs font-bold text-ink-soft/70 hover:text-ink">
-        {t("dash.howItWorks")}
-      </Link>
-
       <BottomNav />
+
+      <OnboardingTour open={tourOpen} onDone={finishTour} />
     </main>
   );
 }

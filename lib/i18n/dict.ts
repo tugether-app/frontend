@@ -26,7 +26,6 @@ const en: Dict = {
   "dash.seeAllGoals": "See all goals",
   "dash.noGoals": "No goals yet",
   "dash.noGoalsHint": "Start your first one. The jar is waiting to be filled.",
-  "dash.howItWorks": "How Tugether works",
 
   "welcome.badge": "no wallet, just email",
   "welcome.title1": "Save together,",
@@ -191,6 +190,21 @@ const en: Dict = {
   "offline.retry": "Retry",
   "maintenance.title": "Be right back",
   "maintenance.hint": "We're doing a quick tune-up. Please check back soon.",
+
+  "tour.skip": "Skip",
+  "tour.back": "Back",
+  "tour.next": "Next",
+  "tour.done": "Get started",
+  "tour.welcome.title": "Welcome to Tugether",
+  "tour.welcome.desc": "Save toward anything with your group. No wallet talk, just email and a goal.",
+  "tour.dashboard.title": "Your dashboard",
+  "tour.dashboard.desc": "See how much you've saved, your closest goal, and everything you're part of, all in one place.",
+  "tour.create.title": "Start a goal",
+  "tour.create.desc": "Tap Create, give it a name and a category, set a target. We handle the rest.",
+  "tour.save.title": "Save together",
+  "tour.save.desc": "Invite friends with one link. Every deposit drops a coin and fills the jar in real time.",
+  "tour.profile.title": "Stay in the loop",
+  "tour.profile.desc": "The bell shows what's new. Your profile has achievements, activity, balance, and settings.",
 };
 
 const id: Dict = {
@@ -209,7 +223,6 @@ const id: Dict = {
   "dash.seeAllGoals": "Lihat semua tujuan",
   "dash.noGoals": "Belum ada tujuan",
   "dash.noGoalsHint": "Mulai yang pertama. Celengannya nunggu diisi.",
-  "dash.howItWorks": "Cara kerja Tugether",
 
   "welcome.badge": "tanpa wallet, cukup email",
   "welcome.title1": "Nabung bareng,",
@@ -374,6 +387,21 @@ const id: Dict = {
   "offline.retry": "Coba lagi",
   "maintenance.title": "Sebentar ya",
   "maintenance.hint": "Lagi ada perbaikan singkat. Cek lagi nanti.",
+
+  "tour.skip": "Lewati",
+  "tour.back": "Kembali",
+  "tour.next": "Lanjut",
+  "tour.done": "Mulai",
+  "tour.welcome.title": "Selamat datang di Tugether",
+  "tour.welcome.desc": "Nabung buat apa pun bareng grupmu. Tanpa istilah wallet, cukup email dan satu tujuan.",
+  "tour.dashboard.title": "Dashboard-mu",
+  "tour.dashboard.desc": "Lihat berapa yang udah terkumpul, tujuan terdekat, dan semua yang kamu ikuti, dalam satu layar.",
+  "tour.create.title": "Mulai tujuan",
+  "tour.create.desc": "Tap Create, kasih nama dan kategori, atur target. Sisanya kami yang urus.",
+  "tour.save.title": "Nabung bareng",
+  "tour.save.desc": "Ajak teman lewat satu link. Tiap setoran, koin jatuh dan celengan terisi langsung.",
+  "tour.profile.title": "Selalu update",
+  "tour.profile.desc": "Lonceng nunjukin kabar terbaru. Profilmu ada pencapaian, aktivitas, saldo, dan pengaturan.",
 };
 
 export const DICTS: Record<Lang, Dict> = { en, id };
