@@ -7,7 +7,6 @@ import { Avatar } from "@/components/Avatar";
 import { CoinJar } from "@/components/CoinJar";
 import { Mascot } from "@/components/Mascot";
 import { GoalCard } from "@/components/GoalCard";
-import { ListRow } from "@/components/ListRow";
 import { NotificationsPopover } from "@/components/NotificationsPopover";
 import { ProgressRing } from "@/components/ProgressRing";
 import { BottomNav } from "@/components/BottomNav";
@@ -37,10 +36,8 @@ function Dashboard() {
   const featured = (goals ?? [])
     .filter((g) => g.status === "open")
     .sort((a, b) => progressPct(b) - progressPct(a))[0];
-  // Dashboard only teases a couple of goals; the rest live behind "See all".
-  const PREVIEW_GOALS = 2;
-  const previewGoals = (goals ?? []).slice(0, PREVIEW_GOALS);
-  const hasMoreGoals = (goals?.length ?? 0) > PREVIEW_GOALS;
+  // Dashboard only teases the single closest goal; the rest live behind "All goals".
+  const previewGoal = (goals ?? [])[0];
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-28 pt-6">
@@ -104,12 +101,17 @@ function Dashboard() {
       </Link>
 
       {/* Your goals */}
-      <h2 className="mt-8 font-display text-lg font-semibold text-ink">{t("dash.yourGoals")}</h2>
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="font-display text-lg font-semibold text-ink">{t("dash.yourGoals")}</h2>
+        {goals && goals.length > 0 && (
+          <Link href="/goals" className="flex items-center gap-0.5 text-sm font-bold text-gold-deep transition hover:text-gold-deep/80">
+            {t("dash.seeAllGoals")} <span aria-hidden>›</span>
+          </Link>
+        )}
+      </div>
       {goals === null ? (
-        <div className="mt-4 flex flex-col gap-3">
-          {[0, 1].map((i) => (
-            <div key={i} className="h-28 rounded-card bg-gold-soft/40 shimmer" />
-          ))}
+        <div className="mt-4">
+          <div className="h-28 rounded-card bg-gold-soft/40 shimmer" />
         </div>
       ) : goals.length === 0 ? (
         <div className="mt-4 flex flex-col items-center rounded-card border border-dashed border-[#E6DECF] bg-surface p-10 text-center">
@@ -118,14 +120,11 @@ function Dashboard() {
           <p className="mt-2 max-w-xs text-sm font-medium text-ink-soft">{t("dash.noGoalsHint")}</p>
         </div>
       ) : (
-        <div className="stagger mt-4 flex flex-col gap-3">
-          {previewGoals.map((g, i) => (
-            <div key={g.id} style={{ "--i": i } as React.CSSProperties}>
-              <GoalCard goal={g} />
-            </div>
-          ))}
-          {hasMoreGoals && <ListRow href="/goals" label={t("dash.seeAllGoals")} />}
-        </div>
+        previewGoal && (
+          <div className="rise-in mt-4">
+            <GoalCard goal={previewGoal} />
+          </div>
+        )
       )}
 
       <Link href="/welcome" className="mt-8 text-center text-xs font-bold text-ink-soft/70 hover:text-ink">
