@@ -59,12 +59,8 @@ export default function Welcome() {
           </PillButton>
         </Link>
         <p className="text-xs text-ink-soft/80">{t("welcome.noSeed")}</p>
-      </div>
-
-      <footer className="mt-10 flex flex-col items-center gap-1 border-t border-line pt-6 text-center">
-        <p className="text-xs font-semibold text-ink-soft/70">{t("welcome.builtFor")}</p>
         <p className="text-[11px] font-medium text-ink-soft/60">{t("welcome.powered")}</p>
-      </footer>
+      </div>
     </main>
   );
 }
