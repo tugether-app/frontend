@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Badge, Card, PillButton } from "@/components/ui";
+import { Badge, Card, PillButton, SparkleIcon } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
@@ -28,7 +28,7 @@ function LoginContent() {
   return (
     <>
       <Badge>
-        <span aria-hidden>✨</span> {t("login.badge")}
+        <SparkleIcon /> {t("login.badge")}
       </Badge>
       <h1 className="mt-4 font-display text-[2rem] font-bold leading-tight tracking-tight text-ink">
         {t("login.title")}

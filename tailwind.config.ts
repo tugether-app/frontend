@@ -21,6 +21,7 @@ const config: Config = {
         },
         line: "#ECE7DE",
         success: "#3FB984",
+        error: "#E2574C",
         blush: "#F6B6A0",
       },
       fontFamily: {

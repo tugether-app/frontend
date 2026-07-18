@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import Link from "@/components/Link";
-import { Badge, PillButton } from "@/components/ui";
+import { Badge, PillButton, SparkleIcon } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { useI18n } from "@/lib/i18n/provider";
 
@@ -22,7 +22,7 @@ export default function Welcome() {
 
       <div className="rise-in mt-6 flex flex-col items-center text-center">
         <Badge>
-          <span aria-hidden>✨</span> {t("welcome.badge")}
+          <SparkleIcon /> {t("welcome.badge")}
         </Badge>
         <img
           src="/art/hero-scene.png"

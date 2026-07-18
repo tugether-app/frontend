@@ -4,7 +4,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type PillVariant = "gold" | "light" | "ghost";
+type PillVariant = "gold" | "light" | "ghost" | "danger";
 
 const base =
   "relative inline-flex items-center justify-center gap-2 rounded-btn font-display font-semibold will-change-transform transition-[transform,box-shadow,background-color,border-color] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:cursor-not-allowed";
@@ -16,6 +16,10 @@ const variants: Record<PillVariant, string> = {
   light:
     "bg-surface text-gold-deep ring-[1.5px] ring-line hover:ring-gold active:translate-y-[2px] disabled:opacity-50",
   ghost: "bg-transparent text-ink-soft hover:text-ink",
+  // Same chunky 3D "candy" language as gold, in the error red -- for
+  // destructive confirmations (sign out, delete, etc).
+  danger:
+    "bg-error text-white shadow-[0_5px_0_#B8362D,0_8px_18px_rgba(226,87,76,0.25)] active:translate-y-[3px] active:shadow-[0_2px_0_#B8362D] disabled:bg-[#F1ECE2] disabled:text-[#BCB4A8] disabled:shadow-none disabled:translate-y-0",
 };
 
 export function Spinner({ className = "" }: { className?: string }) {
@@ -73,6 +77,30 @@ export function Chip({
     >
       {children}
     </button>
+  );
+}
+
+// Small four-point sparkle, used in badges instead of the OS "✨" emoji so it
+// renders identically everywhere and matches the app's own line-icon style.
+export function SparkleIcon({ size = 12, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <path
+        d="M12 2c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7z"
+        fill="#E09A1E"
+      />
+    </svg>
+  );
+}
+
+// Small filled checkmark, used in success pills/badges instead of concatenating
+// a plain "✓" character onto the text.
+export function CheckCircleIcon({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.15" />
+      <path d="M7.5 12.5l3 3 6-6.5" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

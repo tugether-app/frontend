@@ -92,7 +92,7 @@ export function NotificationsPopover() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-gold-soft/40"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold-soft text-sm">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold-soft">
                     {EVENT_GLYPH[e.type]}
                   </span>
                   <p className="min-w-0 flex-1 truncate text-[13px] font-semibold text-ink">

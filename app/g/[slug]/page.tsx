@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "@/components/Link";
 import { useParams, useRouter } from "next/navigation";
 import type { Address } from "viem";
-import { Card, PillButton, Chip } from "@/components/ui";
+import { Card, PillButton, Chip, CheckCircleIcon } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import { CoinJar } from "@/components/CoinJar";
 import { Mascot } from "@/components/Mascot";
@@ -346,11 +346,15 @@ export default function GoalPage() {
           />
         </div>
         {isReleased ? (
-          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.vote.released")} ✓</p>
+          <p className="mt-3 flex items-center gap-1.5 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
+            <CheckCircleIcon /> {t("goal.vote.released")}
+          </p>
         ) : isRefunded ? (
-          <p className="mt-3 rounded-full bg-amber-100 px-4 py-1.5 text-sm font-bold text-amber-700">{t("goal.vote.refunded")}</p>
+          <p className="mt-3 rounded-full bg-gold-soft px-4 py-1.5 text-sm font-bold text-gold-deep">{t("goal.vote.refunded")}</p>
         ) : isReached ? (
-          <p className="mt-3 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">{t("goal.reached")}</p>
+          <p className="mt-3 flex items-center gap-1.5 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
+            <CheckCircleIcon /> {t("goal.reached")}
+          </p>
         ) : (
           <p className="mt-3 font-display text-base font-semibold text-gold-deep">
             {t("goal.toGo", { v: money(goal.targetAmount - goal.collectedAmount) })}
@@ -388,10 +392,10 @@ export default function GoalPage() {
                   {memberVote !== undefined && memberVote !== 0 && (
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                        memberVote === 1 ? "bg-success/15 text-success" : "bg-amber-100 text-amber-700"
+                        memberVote === 1 ? "bg-success/15 text-success" : "bg-gold-soft text-gold-deep"
                       }`}
                     >
-                      {memberVote === 1 ? "↑ Release" : "↩ Refund"}
+                      {memberVote === 1 ? t("goal.vote.badgeRelease") : t("goal.vote.badgeRefund")}
                     </span>
                   )}
                   <span className="text-sm font-semibold text-ink-soft">{money(m.totalDeposited)}</span>
@@ -408,12 +412,12 @@ export default function GoalPage() {
           <h2 className="font-display text-base font-semibold text-ink">{t("goal.vote.title")}</h2>
 
           {isReleased ? (
-            <p className="mt-3 rounded-2xl bg-success/10 px-4 py-3 text-sm font-semibold text-success">
-              {t("goal.vote.released")} ✓
+            <p className="mt-3 flex items-center gap-1.5 rounded-2xl bg-success/10 px-4 py-3 text-sm font-semibold text-success">
+              <CheckCircleIcon /> {t("goal.vote.released")}
             </p>
           ) : isRefunded ? (
-            <p className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-700">
-              {t("goal.vote.refunded")} — {t("goal.vote.claim", { v: money(vaultState?.myContribution ?? 0) })}
+            <p className="mt-3 rounded-2xl bg-gold-soft px-4 py-3 text-sm font-semibold text-gold-deep">
+              {t("goal.vote.refunded")}. {t("goal.vote.claim", { v: money(vaultState?.myContribution ?? 0) })}.
             </p>
           ) : (
             <>
@@ -446,7 +450,7 @@ export default function GoalPage() {
                   onVote={() => vote("refund")}
                   loading={busy === "vote-refund"}
                   disabled={!!busy || isFinalized}
-                  color="amber"
+                  color="gold"
                 />
               </div>
 
@@ -563,20 +567,20 @@ interface VoteOptionProps {
   onVote: () => void;
   loading: boolean;
   disabled: boolean;
-  color: "success" | "amber";
+  color: "success" | "gold";
 }
 
 function VoteOption({ title, desc, votes, total, active, tally, myVoteLabel, voteLabel, onVote, loading, disabled, color }: VoteOptionProps) {
   const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
   const majority = total > 0 && votes * 2 >= total;
 
-  const ring = color === "success" ? "#3FB984" : "#F59E0B";
+  const ring = color === "success" ? "#3FB984" : "#E09A1E";
   const bg = active
     ? color === "success"
       ? "bg-success/10 border-success/40"
-      : "bg-amber-50 border-amber-300"
+      : "bg-gold-soft border-gold/40"
     : "bg-surface border-line";
-  const textAccent = color === "success" ? "text-success" : "text-amber-600";
+  const textAccent = color === "success" ? "text-success" : "text-gold-deep";
   const tallyStr = tally.replace("{v}", String(votes)).replace("{n}", String(total));
 
   return (
@@ -594,7 +598,11 @@ function VoteOption({ title, desc, votes, total, active, tally, myVoteLabel, vot
 
       <div className="flex items-center justify-between">
         <span className={`text-[11px] font-bold ${majority ? textAccent : "text-ink-soft"}`}>{tallyStr}</span>
-        {active && <span className={`text-[10px] font-bold ${textAccent}`}>{myVoteLabel} ✓</span>}
+        {active && (
+          <span className={`flex items-center gap-1 text-[10px] font-bold ${textAccent}`}>
+            <CheckCircleIcon size={11} /> {myVoteLabel}
+          </span>
+        )}
       </div>
 
       <button
@@ -604,10 +612,10 @@ function VoteOption({ title, desc, votes, total, active, tally, myVoteLabel, vot
           active
             ? color === "success"
               ? "bg-success text-white"
-              : "bg-amber-500 text-white"
+              : "bg-gold text-ink"
             : color === "success"
               ? "bg-success/15 text-success hover:bg-success/25"
-              : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+              : "bg-gold-soft text-gold-deep hover:bg-gold/30"
         }`}
       >
         {loading ? "..." : voteLabel}

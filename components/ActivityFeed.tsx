@@ -19,7 +19,7 @@ export function ActivityFeed({ events }: { events: ActivityEvent[] }) {
             href={`/g/${e.goalSlug}`}
             className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gold-soft/40"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-soft text-base">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold-soft">
               {EVENT_GLYPH[e.type]}
             </span>
             <p className="min-w-0 flex-1 truncate text-[13.5px] font-semibold text-ink">

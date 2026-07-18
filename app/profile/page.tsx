@@ -9,6 +9,7 @@ import { Card, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { AvatarPicker } from "@/components/AvatarPicker";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ListRow, ListRowButton } from "@/components/ListRow";
 import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -84,6 +85,8 @@ function Profile() {
   const toast = useToast();
   const { user, logout, getProvider } = useAuth();
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   const [sheet, setSheet] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
@@ -137,7 +140,8 @@ function Profile() {
   const amountOk = typeof amount === "number" && amount > 0 && (balance === null || amount <= balance);
   const withdrawOk = destOk && amountOk && !sending;
 
-  async function signOut() {
+  async function confirmedSignOut() {
+    setSigningOut(true);
     await logout();
     toast(t("profile.signedOut"), "success");
     withViewTransition(() => router.push("/welcome"));
@@ -241,7 +245,7 @@ function Profile() {
         <ListRowButton onClick={() => setAvatarOpen(true)} icon={<FaceIcon />} label={t("profile.chooseAvatar")} />
       </div>
 
-      <PillButton variant="ghost" className="mt-4 w-full" onClick={signOut}>
+      <PillButton variant="ghost" className="mt-4 w-full" onClick={() => setConfirmSignOut(true)}>
         {t("profile.signOut")}
       </PillButton>
 
@@ -326,6 +330,18 @@ function Profile() {
       )}
 
       <AvatarPicker open={avatarOpen} onClose={() => setAvatarOpen(false)} />
+
+      <ConfirmDialog
+        open={confirmSignOut}
+        title={t("profile.signOutTitle")}
+        description={t("profile.signOutDesc")}
+        confirmLabel={t("profile.signOut")}
+        cancelLabel={t("common.cancel")}
+        destructive
+        loading={signingOut}
+        onConfirm={confirmedSignOut}
+        onClose={() => setConfirmSignOut(false)}
+      />
 
       <BottomNav />
     </main>

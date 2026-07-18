@@ -65,7 +65,7 @@ function Dashboard() {
 
       <div className="rise-in mt-6">
         <h1 className="font-display text-[28px] font-semibold leading-tight tracking-tight text-ink">
-          {t("dash.greeting")} <span aria-hidden>👋</span>
+          {t("dash.greeting")}
         </h1>
         <p className="mt-1 font-medium text-ink-soft">{t("dash.subtitle")}</p>
       </div>
