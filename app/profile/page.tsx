@@ -61,21 +61,19 @@ function EditIcon() {
     </svg>
   );
 }
-function FaceIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="8.2" stroke="#E09A1E" strokeWidth="1.9" />
-      <circle cx="9.3" cy="10.5" r="1.1" fill="#E09A1E" />
-      <circle cx="14.7" cy="10.5" r="1.1" fill="#E09A1E" />
-      <path d="M9 14.2q3 2.4 6 0" stroke="#E09A1E" strokeWidth="1.7" strokeLinecap="round" fill="none" />
-    </svg>
-  );
-}
 function WithdrawIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M12 4v11M12 15l-4-4M12 15l4-4" stroke="#E09A1E" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M5 19h14" stroke="#E09A1E" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
+  );
+}
+function SignOutIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3" stroke="#2B2622" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 17l5-5-5-5M21 12H9" stroke="#2B2622" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -162,6 +160,14 @@ function Profile() {
         <Link href="/">
           <WordMark />
         </Link>
+        <button
+          type="button"
+          onClick={() => setConfirmSignOut(true)}
+          aria-label={t("profile.signOut")}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-surface ring-1 ring-line transition hover:ring-error active:scale-95"
+        >
+          <SignOutIcon />
+        </button>
       </header>
 
       <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">{t("profile.title")}</h1>
@@ -234,12 +240,7 @@ function Profile() {
         <ListRow href="/activity" icon={<ActivityIcon />} label={t("profile.activity")} />
         <ListRowButton onClick={() => setSheet(true)} icon={<WithdrawIcon />} label={t("profile.withdraw.title")} />
         <ListRow href="/settings" icon={<SettingsIcon />} label={t("profile.settings")} />
-        <ListRowButton onClick={() => setAvatarOpen(true)} icon={<FaceIcon />} label={t("profile.chooseAvatar")} />
       </div>
-
-      <PillButton variant="ghost" className="mt-4 w-full" onClick={() => setConfirmSignOut(true)}>
-        {t("profile.signOut")}
-      </PillButton>
 
       <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
       <Card className="mt-3 p-4">

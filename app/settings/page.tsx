@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
+import { FlagIcon } from "@/components/FlagIcon";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n/provider";
 import { LANGS } from "@/lib/i18n/dict";
@@ -35,7 +36,7 @@ function Settings() {
               onClick={() => setLang(l.code)}
               className="flex w-full items-center gap-3 rounded-[18px] px-4 py-3.5 text-left transition active:scale-[0.99]"
             >
-              <span className="text-2xl">{l.flag}</span>
+              <FlagIcon code={l.flagCode} size={28} />
               <span className="flex-1 font-semibold text-ink">{l.label}</span>
               <span
                 className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${

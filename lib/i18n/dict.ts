@@ -3,9 +3,9 @@
 
 export type Lang = "en" | "id";
 
-export const LANGS: { code: Lang; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "id", label: "Indonesia", flag: "🇮🇩" },
+export const LANGS: { code: Lang; label: string; flagCode: "gb" | "id" }[] = [
+  { code: "en", label: "English", flagCode: "gb" },
+  { code: "id", label: "Indonesia", flagCode: "id" },
 ];
 
 type Dict = Record<string, string>;
@@ -173,14 +173,12 @@ const en: Dict = {
   "activity.title": "Activity",
   "activity.empty": "No activity yet",
   "activity.emptyHint": "Your goals and deposits will show up here.",
-  "activity.emptyToday": "No activity today",
   "notif.title": "Notifications",
   "notif.empty": "You're all caught up",
   "notif.emptyHint": "We'll let you know when something happens.",
-  "notif.emptyToday": "No notifications today",
   "notif.seeAll": "See all",
-  "filter.all": "All",
-  "filter.today": "Today",
+  "date.today": "Today",
+  "date.yesterday": "Yesterday",
 
   "ev.created": "{actor} started {goal}",
   "ev.joined": "{actor} joined {goal}",
@@ -358,14 +356,12 @@ const id: Dict = {
   "activity.title": "Aktivitas",
   "activity.empty": "Belum ada aktivitas",
   "activity.emptyHint": "Tujuan dan setoranmu akan muncul di sini.",
-  "activity.emptyToday": "Belum ada aktivitas hari ini",
   "notif.title": "Notifikasi",
   "notif.empty": "Semua sudah terbaca",
   "notif.emptyHint": "Kami beri tahu kalau ada yang terjadi.",
-  "notif.emptyToday": "Belum ada notifikasi hari ini",
   "notif.seeAll": "Lihat semua",
-  "filter.all": "Semua",
-  "filter.today": "Hari ini",
+  "date.today": "Hari ini",
+  "date.yesterday": "Kemarin",
 
   "ev.created": "{actor} membuat {goal}",
   "ev.joined": "{actor} gabung ke {goal}",

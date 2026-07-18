@@ -1,4 +1,4 @@
-import type { EventType } from "./types";
+import type { ActivityEvent, EventType } from "./types";
 
 // Shared between the notifications popover, /notifications, and /activity so
 // the "what counts as a notification" and "is this today" rules only live
@@ -48,4 +48,44 @@ export function isToday(iso: string): boolean {
   const d = new Date(iso);
   const now = new Date();
   return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
+
+export function isYesterday(iso: string): boolean {
+  const d = new Date(iso);
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  return d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate();
+}
+
+export type DayGroup = { kind: "today" | "yesterday" | "date"; dateLabel?: string; events: ActivityEvent[] };
+
+// Groups an already-newest-first event list into day sections: Today,
+// Yesterday, then real calendar dates for everything older -- instead of a
+// single "show everything" list or a same-day-only filter, both of which
+// either ran on forever or hid history entirely.
+export function groupEventsByDay(events: ActivityEvent[], locale: "en" | "id"): DayGroup[] {
+  const order: string[] = [];
+  const byDay = new Map<string, ActivityEvent[]>();
+  for (const e of events) {
+    const key = new Date(e.at).toDateString();
+    if (!byDay.has(key)) {
+      byDay.set(key, []);
+      order.push(key);
+    }
+    byDay.get(key)!.push(e);
+  }
+
+  const thisYear = new Date().getFullYear();
+  return order.map((key) => {
+    const dayEvents = byDay.get(key)!;
+    if (isToday(dayEvents[0].at)) return { kind: "today" as const, events: dayEvents };
+    if (isYesterday(dayEvents[0].at)) return { kind: "yesterday" as const, events: dayEvents };
+    const d = new Date(dayEvents[0].at);
+    const dateLabel = d.toLocaleDateString(locale === "id" ? "id-ID" : "en-US", {
+      month: "short",
+      day: "numeric",
+      year: d.getFullYear() !== thisYear ? "numeric" : undefined,
+    });
+    return { kind: "date" as const, dateLabel, events: dayEvents };
+  });
 }

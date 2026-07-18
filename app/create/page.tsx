@@ -141,12 +141,12 @@ export default function CreatePage() {
                   key={c}
                   type="button"
                   onClick={() => setCategory(c)}
-                  className={`flex flex-col items-center gap-1 rounded-2xl border-[1.5px] px-1 py-2 transition active:scale-95 ${
+                  className={`flex flex-col items-center gap-1.5 rounded-2xl border-[1.5px] px-1 py-3 transition active:scale-95 ${
                     active ? "border-gold bg-gold-soft" : "border-line bg-surface hover:border-gold/50"
                   }`}
                 >
-                  <img src={catIcon(c)} alt="" aria-hidden className="h-8 w-8 select-none" draggable={false} />
-                  <span className="text-[9px] font-bold text-ink-soft">{t(`cat.${c}`)}</span>
+                  <img src={catIcon(c)} alt="" aria-hidden className="h-12 w-12 select-none" draggable={false} />
+                  <span className="text-[10px] font-bold leading-none text-ink-soft">{t(`cat.${c}`)}</span>
                 </button>
               );
             })}
