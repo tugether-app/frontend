@@ -172,11 +172,13 @@ async function getEoa(eip1193Provider: EIP1193Provider): Promise<Address> {
 
 function getUniversalAccount(eoa: Address): UniversalAccount {
   requireConfig();
+  // Note: SDK v2 dropped the top-level `ownerAddress` from IUniversalAccountConfig
+  // -- it lives only inside smartAccountOptions now. Passing it at the top level
+  // is a TS error under v2 (though ignored at runtime).
   return new UniversalAccount({
     projectId: PROJECT_ID!,
     projectClientKey: CLIENT_KEY!,
     projectAppUuid: APP_ID!,
-    ownerAddress: eoa,
     // Per Particle's official UA SDK reference (ua-reference/web/initialization):
     // `name` must be the literal string "UNIVERSAL", `version` must be the
     // SDK's own UNIVERSAL_ACCOUNT_VERSION constant. An earlier guess used
