@@ -48,7 +48,14 @@ export function OnboardingTour({ open, onDone }: { open: boolean; onDone: () => 
           {t("tour.skip")}
         </button>
 
-        <img src={s.art} alt="" aria-hidden className="mt-1 h-32 w-auto select-none" draggable={false} />
+        <img
+          key={step}
+          src={s.art}
+          alt=""
+          aria-hidden
+          className="image-pop-in mt-1 h-32 w-auto select-none"
+          draggable={false}
+        />
 
         <h2 id={titleId} className="mt-4 font-display text-xl font-semibold text-ink">
           {t(`tour.${s.key}.title`)}

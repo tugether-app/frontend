@@ -292,6 +292,24 @@ a {
   animation: pop 0.4s var(--ease-spring);
 }
 
+/* Entrance for the step art in OnboardingTour when advancing/going back. */
+@keyframes image-pop-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.image-pop-in {
+  animation: image-pop-in 0.45s var(--ease-spring) both;
+}
+
 @keyframes toast-in {
   from {
     transform: translateY(16px) scale(0.92);
