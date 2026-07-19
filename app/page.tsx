@@ -15,7 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
 import { api } from "@/lib/client";
 import { useCachedFetch } from "@/lib/useCachedFetch";
-import { hasSeenTour, markTourSeen } from "@/lib/onboarding";
+import { hasSeenTour, markTourSeen, markTourShownThisSession } from "@/lib/onboarding";
 import { money, progressPct } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/provider";
 
@@ -35,7 +35,10 @@ function Dashboard() {
   const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
-    if (!hasSeenTour()) setTourOpen(true);
+    if (!hasSeenTour()) {
+      setTourOpen(true);
+      markTourShownThisSession();
+    }
   }, []);
 
   function finishTour(dontShowAgain: boolean) {
