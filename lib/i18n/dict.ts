@@ -320,7 +320,7 @@ const id: Dict = {
   "goal.vote.tally": "{v}/{n} suara",
   "goal.vote.myVote": "Pilihanmu",
   "goal.vote.badgeRelease": "Rilis",
-  "goal.vote.badgeRefund": "Kembali",
+  "goal.vote.badgeRefund": "Refund",
   "goal.vote.doVote": "Pilih",
   "goal.vote.majority": "Mayoritas tercapai",
   "goal.vote.execute.release": "Kirim dana ke bendahara",
