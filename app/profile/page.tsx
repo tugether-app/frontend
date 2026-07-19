@@ -1,9 +1,8 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "@/components/Link";
-import { useRouter } from "next/navigation";
 import { isAddress, type Address } from "viem";
 import { Card, PillButton } from "@/components/ui";
 import { WordMark } from "@/components/BrandIcon";
@@ -16,7 +15,6 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useToast } from "@/components/Toast";
 import { useI18n } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/auth";
-import { withViewTransition } from "@/lib/viewTransition";
 import { useDialog } from "@/lib/useDialog";
 import { useEnter } from "@/lib/useEnter";
 import { money } from "@/lib/format";
@@ -81,7 +79,6 @@ function SignOutIcon() {
 
 function Profile() {
   const { t } = useI18n();
-  const router = useRouter();
   const toast = useToast();
   const entered = useEnter();
   const { user, logout, getProvider } = useAuth();
@@ -136,11 +133,16 @@ function Profile() {
     setSigningOut(true);
     await logout();
     toast(t("profile.signedOut"), "success");
-    withViewTransition(() => router.push("/welcome"));
+    // RequireAuth's own effect redirects to /welcome once `status` flips to
+    // "anon" (see components/RequireAuth.tsx) -- navigating here too would
+    // race two withViewTransition calls for the same route change.
   }
 
+  const withdrawInFlight = useRef(false);
+
   async function withdraw() {
-    if (!user || !withdrawOk || typeof amount !== "number") return;
+    if (!user || !withdrawOk || typeof amount !== "number" || withdrawInFlight.current) return;
+    withdrawInFlight.current = true;
     setSending(true);
     try {
       await sendFunds({ eip1193Provider: getProvider(), to: dest.trim() as Address, amount });
@@ -152,6 +154,7 @@ function Profile() {
       console.error("withdraw failed:", e);
       toast(e instanceof VaultFlowError ? e.message : t("profile.withdraw.err"), "error");
     } finally {
+      withdrawInFlight.current = false;
       setSending(false);
     }
   }
@@ -225,9 +228,9 @@ function Profile() {
 
           {unified && unified.assets.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {unified.assets.map((a) => (
+              {unified.assets.map((a, i) => (
                 <span
-                  key={a.symbol}
+                  key={`${a.symbol}-${i}`}
                   className="rounded-full bg-gold-soft/70 px-3 py-1 text-xs font-bold text-gold-deep"
                 >
                   {a.amount.toLocaleString("en-US", { maximumFractionDigits: 4 })} {a.symbol}
