@@ -50,12 +50,25 @@ export function useDialog<T extends HTMLElement>(
     }
 
     document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // Lock scroll without `overflow: hidden` on body -- that removes the
+    // scrollbar track entirely, which shifts the whole page sideways and
+    // (on some browsers/viewports) looks like the scrollbar just vanished.
+    // Fixing the body in place instead keeps the track/thumb rendered the
+    // whole time the dialog is open.
+    const scrollY = window.scrollY;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
 
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.top = prevTop;
+      document.body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
       lastFocused?.focus?.();
     };
   }, [open, onClose, initialFocusRef]);
