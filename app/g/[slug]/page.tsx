@@ -59,6 +59,10 @@ export default function GoalPage() {
   const [vaultState, setVaultState] = useState<VaultState | null>(null);
   const prevStatus = useRef<string | undefined>(undefined);
   const entered = useEnter();
+  // Synchronous re-entrancy lock for the money-moving actions below: `busy`
+  // (React state) only blocks the UI once the re-render commits, leaving a
+  // sub-frame window where a double-tap could fire two on-chain calls.
+  const busyRef = useRef(false);
 
   const refreshVaultState = useCallback(
     async (g: Goal) => {
@@ -158,27 +162,45 @@ export default function GoalPage() {
     !!vaultState && !isFinalized && vaultState.memberCount > 0 && vaultState.refundVotes * 2 >= vaultState.memberCount;
 
   async function join() {
-    if (!goal || !me) return;
+    if (!goal || !me || busyRef.current) return;
+    busyRef.current = true;
     setBusy("join");
+    let joinedOk = false;
     try {
       await api.join(goal.id, { memberAddr: me.addr, displayName: me.name, avatarSeed: me.seed });
+      joinedOk = true;
       const updated = await api.getGoalBySlug(slug);
       setGoal(updated);
       await refreshVaultState(updated);
       setSheet(true); // jump into first deposit
       toast(t("goal.joined"), "success");
     } catch (e) {
+      if (joinedOk) {
+        // The join itself went through server-side; only the follow-up
+        // refresh failed. Don't tell the user joining failed when it didn't
+        // -- the member list will just be a beat stale until next refetch.
+        console.error("post-join refresh failed:", e);
+        toast(t("goal.joined"), "success");
+        setSheet(true);
+        return;
+      }
       toast(e instanceof Error ? e.message : "Could not join", "error");
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
 
   async function deposit() {
-    if (!goal || !me || typeof amount !== "number" || amount < MIN_DEPOSIT || !goal.vaultAddr) return;
+    if (!goal || !me || typeof amount !== "number" || amount < MIN_DEPOSIT || !goal.vaultAddr || busyRef.current)
+      return;
+    busyRef.current = true;
     setBusy("deposit");
+    const vaultAddr = goal.vaultAddr as Address;
+    let onChainOk = false;
     try {
-      await depositToVault({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address, amount });
+      await depositToVault({ eip1193Provider: getProvider(), vaultAddr, amount });
+      onChainOk = true;
       const updated = await api.deposit(goal.id, { memberAddr: me.addr, amount });
       setGoal(updated);
       await refreshVaultState(updated);
@@ -187,14 +209,30 @@ export default function GoalPage() {
       toast(t("goal.depositOk"), "success");
     } catch (e) {
       console.error("deposit failed:", e);
-      toast(e instanceof VaultFlowError ? e.message : "Could not deposit", "error");
+      if (onChainOk) {
+        // The USDC already left the wallet into the vault -- only the
+        // backend sync failed. Reflect the real on-chain total (read
+        // directly off the vault, no backend involved) instead of claiming
+        // the deposit itself failed, so the user isn't misled into
+        // depositing a second time for what they think was one attempt.
+        const onChainTotal = await getUsdcBalance(vaultAddr).catch(() => null);
+        if (onChainTotal !== null) setGoal((g) => (g ? { ...g, collectedAmount: onChainTotal } : g));
+        await refreshVaultState(goal).catch(() => {});
+        setSheet(false);
+        setAmount("");
+        toast(t("goal.depositSyncErr"), "error");
+      } else {
+        toast(e instanceof VaultFlowError ? e.message : "Could not deposit", "error");
+      }
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
 
   async function vote(choice: "release" | "refund") {
-    if (!goal?.vaultAddr || !me) return;
+    if (!goal?.vaultAddr || !me || busyRef.current) return;
+    busyRef.current = true;
     const key: BusyKey = choice === "release" ? "vote-release" : "vote-refund";
     setBusy(key);
     try {
@@ -205,12 +243,14 @@ export default function GoalPage() {
       console.error("vote failed:", e);
       toast(e instanceof VaultFlowError ? e.message : "Vote failed", "error");
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
 
   async function execRelease() {
-    if (!goal?.vaultAddr || !me) return;
+    if (!goal?.vaultAddr || !me || busyRef.current) return;
+    busyRef.current = true;
     setBusy("exec-release");
     try {
       await executeRelease({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
@@ -220,12 +260,14 @@ export default function GoalPage() {
       console.error("release failed:", e);
       toast(e instanceof VaultFlowError ? e.message : "Release failed", "error");
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
 
   async function execRefund() {
-    if (!goal?.vaultAddr || !me) return;
+    if (!goal?.vaultAddr || !me || busyRef.current) return;
+    busyRef.current = true;
     setBusy("exec-refund");
     try {
       await executeRefund({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
@@ -235,12 +277,14 @@ export default function GoalPage() {
       console.error("refund failed:", e);
       toast(e instanceof VaultFlowError ? e.message : "Refund failed", "error");
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
 
   async function claim() {
-    if (!goal?.vaultAddr || !me) return;
+    if (!goal?.vaultAddr || !me || busyRef.current) return;
+    busyRef.current = true;
     setBusy("claim");
     try {
       await claimRefund({ eip1193Provider: getProvider(), vaultAddr: goal.vaultAddr as Address });
@@ -250,6 +294,7 @@ export default function GoalPage() {
       console.error("claim failed:", e);
       toast(e instanceof VaultFlowError ? e.message : "Claim failed", "error");
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
