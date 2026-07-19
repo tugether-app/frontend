@@ -3,6 +3,7 @@
 import Link from "@/components/Link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n/provider";
+import { useEnter } from "@/lib/useEnter";
 
 // Floating mobile bottom nav: Home / Create / Profile.
 
@@ -54,9 +55,15 @@ const ITEMS: Item[] = [
 export function BottomNav() {
   const pathname = usePathname();
   const { t } = useI18n();
+  const entered = useEnter();
 
   return (
-    <nav className="nav-slide-up fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2">
+    <nav
+      className={`fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 transition-[transform,opacity] duration-700 ${
+        entered ? "translate-y-0 opacity-100" : "translate-y-full opacity-50"
+      }`}
+      style={{ transitionTimingFunction: "var(--ease-spring)" }}
+    >
       <div className="mx-auto flex max-w-sm items-center justify-between rounded-[26px] border border-line bg-surface/95 px-4 py-2.5 shadow-[0_10px_26px_rgba(43,38,34,0.10)] backdrop-blur">
         {ITEMS.map((it) => {
           const active = it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);
