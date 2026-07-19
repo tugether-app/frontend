@@ -313,8 +313,9 @@ export default function GoalPage() {
         <ProgressRing pct={pct} size={44} stroke={6} />
       </header>
 
+      <div className="stagger">
       {/* Hero */}
-      <div className="mt-4 flex flex-col items-center text-center">
+      <div style={{ "--i": 0 } as React.CSSProperties} className="mt-4 flex flex-col items-center text-center">
         <div className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={catIcon(goal.category)} alt="" aria-hidden className="h-7 w-7 select-none" draggable={false} />
@@ -355,6 +356,7 @@ export default function GoalPage() {
       </div>
 
       {/* Members */}
+      <div style={{ "--i": 1 } as React.CSSProperties}>
       <Card className="mt-6 p-5">
         <div className="flex items-center justify-between">
           <span className="font-display text-base font-semibold text-ink">{t("goal.members")}</span>
@@ -397,9 +399,11 @@ export default function GoalPage() {
           </ul>
         )}
       </Card>
+      </div>
 
       {/* Voting card -- shown to members while vault is active */}
       {joined && goal.vaultAddr && (
+        <div style={{ "--i": 2 } as React.CSSProperties}>
         <Card className="mt-4 p-5">
           <h2 className="font-display text-base font-semibold text-ink">{t("goal.vote.title")}</h2>
 
@@ -474,20 +478,22 @@ export default function GoalPage() {
             </>
           )}
         </Card>
+        </div>
       )}
 
-      <div className="mt-4">
+      <div style={{ "--i": 3 } as React.CSSProperties} className="mt-4">
         <ShareButton slug={slug} />
       </div>
 
       {goal.vaultAddr && (
-        <p className="mt-4 text-center text-[11px] font-medium text-ink-soft/70">
+        <p style={{ "--i": 4 } as React.CSSProperties} className="mt-4 text-center text-[11px] font-medium text-ink-soft/70">
           {t("goal.onchain")} <span className="font-mono">{goal.vaultAddr.slice(0, 10)}...</span>
         </p>
       )}
+      </div>
 
       {/* Sticky action bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 px-6 pt-4 pb-[max(env(safe-area-inset-bottom),16px)] backdrop-blur">
+      <div className="sheet-up fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 px-6 pt-4 pb-[max(env(safe-area-inset-bottom),16px)] backdrop-blur">
         <div className="mx-auto max-w-md">{renderActionBar()}</div>
       </div>
 
