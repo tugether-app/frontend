@@ -38,8 +38,8 @@ function Dashboard() {
     if (!hasSeenTour()) setTourOpen(true);
   }, []);
 
-  function finishTour() {
-    markTourSeen();
+  function finishTour(dontShowAgain: boolean) {
+    if (dontShowAgain) markTourSeen();
     setTourOpen(false);
   }
 

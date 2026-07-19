@@ -19,11 +19,19 @@ const STEPS = [
 // member lands on the dashboard (see lib/onboarding.ts). Every "tool" in the
 // app gets one step instead of leaving people to stumble onto Create,
 // notifications, or Profile on their own.
-export function OnboardingTour({ open, onDone }: { open: boolean; onDone: () => void }) {
+export function OnboardingTour({
+  open,
+  onDone,
+}: {
+  open: boolean;
+  onDone: (dontShowAgain: boolean) => void;
+}) {
   const { t } = useI18n();
   const [step, setStep] = useState(0);
+  const [dontShowAgain, setDontShowAgain] = useState(true);
   const titleId = useId();
-  const dialogRef = useDialog<HTMLDivElement>(open, onDone);
+  const close = () => onDone(dontShowAgain);
+  const dialogRef = useDialog<HTMLDivElement>(open, close);
 
   if (!open) return null;
 
@@ -42,7 +50,7 @@ export function OnboardingTour({ open, onDone }: { open: boolean; onDone: () => 
       >
         <button
           type="button"
-          onClick={onDone}
+          onClick={close}
           className="self-end text-xs font-bold text-ink-soft/70 transition hover:text-ink"
         >
           {t("tour.skip")}
@@ -66,14 +74,24 @@ export function OnboardingTour({ open, onDone }: { open: boolean; onDone: () => 
           <StepDots total={STEPS.length} current={step} />
         </div>
 
-        <div className="mt-6 flex w-full gap-2.5">
+        <label className="mt-6 flex cursor-pointer select-none items-center gap-2 self-start text-xs font-medium text-ink-soft">
+          <input
+            type="checkbox"
+            checked={dontShowAgain}
+            onChange={(e) => setDontShowAgain(e.target.checked)}
+            className="h-4 w-4 shrink-0 rounded border-line text-gold-deep accent-gold-deep"
+          />
+          {t("tour.dontShowAgain")}
+        </label>
+
+        <div className="mt-3 flex w-full gap-2.5">
           {step > 0 && (
             <PillButton variant="light" onClick={() => setStep((n) => n - 1)} className="flex-1 py-3">
               {t("tour.back")}
             </PillButton>
           )}
           <PillButton
-            onClick={() => (last ? onDone() : setStep((n) => n + 1))}
+            onClick={() => (last ? close() : setStep((n) => n + 1))}
             className="flex-1 py-3"
           >
             {last ? t("tour.done") : t("tour.next")}

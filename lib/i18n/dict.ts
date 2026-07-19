@@ -204,6 +204,7 @@ const en: Dict = {
   "tour.save.desc": "Invite friends with one link. Every deposit drops a coin and fills the jar in real time.",
   "tour.profile.title": "Stay in the loop",
   "tour.profile.desc": "The bell shows what's new. Your profile has achievements, activity, balance, and settings.",
+  "tour.dontShowAgain": "Don't show this again",
 };
 
 const id: Dict = {
@@ -400,6 +401,7 @@ const id: Dict = {
   "tour.save.desc": "Ajak teman lewat satu link. Tiap setoran, koin jatuh dan celengan terisi langsung.",
   "tour.profile.title": "Selalu update",
   "tour.profile.desc": "Lonceng nunjukin kabar terbaru. Profilmu ada pencapaian, aktivitas, saldo, dan pengaturan.",
+  "tour.dontShowAgain": "Jangan tampilkan lagi",
 };
 
 export const DICTS: Record<Lang, Dict> = { en, id };
