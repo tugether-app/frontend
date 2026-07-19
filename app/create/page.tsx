@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "@/components/Link";
 import { useRouter } from "next/navigation";
 /* eslint-disable @next/next/no-img-element */
@@ -43,6 +43,12 @@ export default function CreatePage() {
   const targetOk = typeof target === "number" && target >= MIN_TARGET;
   const valid = nameOk && targetOk;
 
+  // If deployGoalVault succeeds but the createGoal call after it fails, a
+  // real GoalVault contract already exists on-chain. Cache it here so a
+  // retry with the same inputs reuses that vault instead of deploying (and
+  // paying gas for) a second one and orphaning the first.
+  const deployedVault = useRef<{ vaultAddr: string; forTarget: number; forCreator: string } | null>(null);
+
   async function submit() {
     if (status === "anon") {
       withViewTransition(() => router.push("/login?next=/create"));
@@ -52,11 +58,19 @@ export default function CreatePage() {
     if (!valid || typeof target !== "number" || !user) return;
     setLoading(true);
     try {
-      const { vaultAddr } = await deployGoalVault({
-        eip1193Provider: getProvider(),
-        creator: user.addr as Address,
-        targetAmount: target,
-      });
+      const cached = deployedVault.current;
+      let vaultAddr: string;
+      if (cached && cached.forTarget === target && cached.forCreator === user.addr) {
+        vaultAddr = cached.vaultAddr;
+      } else {
+        const deployed = await deployGoalVault({
+          eip1193Provider: getProvider(),
+          creator: user.addr as Address,
+          targetAmount: target,
+        });
+        vaultAddr = deployed.vaultAddr;
+        deployedVault.current = { vaultAddr, forTarget: target, forCreator: user.addr };
+      }
       const goal = await api.createGoal({
         name: name.trim(),
         targetAmount: target,
@@ -64,8 +78,17 @@ export default function CreatePage() {
         creatorAddr: user.addr,
         vaultAddr,
       });
-      // Auto-join the creator so they're a member of their own goal.
-      await api.join(goal.id, { memberAddr: user.addr, displayName: user.name, avatarSeed: user.seed }).catch(() => {});
+      deployedVault.current = null; // createGoal succeeded -- nothing left to reuse
+      // Auto-join the creator so they're a member of their own goal. If this
+      // fails, the goal still exists and was created successfully -- don't
+      // silently pretend it worked, but don't block the success screen
+      // either, since retrying here would try to create a whole new goal.
+      try {
+        await api.join(goal.id, { memberAddr: user.addr, displayName: user.name, avatarSeed: user.seed });
+      } catch (e) {
+        console.error("auto-join after create failed:", e);
+        toast(t("create.autoJoinErr"), "error");
+      }
       setCreatedSlug(goal.joinSlug);
     } catch (e) {
       console.error("createGoal failed:", e);
