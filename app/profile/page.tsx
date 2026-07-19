@@ -172,91 +172,99 @@ function Profile() {
 
       <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">{t("profile.title")}</h1>
 
-      <Card className="mt-6 flex items-center gap-4 p-5">
-        <div className="relative shrink-0">
-          <Avatar seed={user?.seed ?? "you"} size={56} />
-          <button
-            type="button"
-            onClick={() => setAvatarOpen(true)}
-            aria-label={t("profile.chooseAvatar")}
-            className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gold ring-2 ring-surface transition active:scale-90"
-          >
-            <EditIcon />
-          </button>
-        </div>
-        <div className="min-w-0">
-          <p className="font-display text-lg font-semibold text-ink">{user?.name ?? t("profile.you")}</p>
-          <p className="truncate text-sm font-medium text-ink-soft">{user?.email ?? t("profile.signedIn")}</p>
-          {user?.addr && <p className="mt-1 select-all break-all font-mono text-[11px] text-ink-soft/60">{user.addr}</p>}
-        </div>
-      </Card>
-
-      {/* Unified cross-chain balance */}
-      <Card className="mt-4 p-5">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-ink-soft">{t("profile.balance.title")}</span>
-          <button
-            type="button"
-            onClick={loadBalance}
-            disabled={balLoading}
-            aria-label={t("profile.balance.refresh")}
-            className="text-gold-deep transition active:scale-90 disabled:opacity-40"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className={balLoading ? "animate-spin" : ""}>
-              <path d="M20 11a8 8 0 10-.5 4M20 5v6h-6" stroke="#E09A1E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-
-        {balLoading && !unified ? (
-          <div className="mt-2 h-9 w-32 overflow-hidden rounded-full bg-gold-soft/60 shimmer" />
-        ) : (
-          <p className="mt-1 font-display text-[32px] font-bold leading-none text-gold-deep">
-            {money(unified?.totalUsd ?? 0)}
-          </p>
-        )}
-        <p className="mt-1 text-[11px] font-semibold text-ink-soft/70">{t("profile.balance.across")}</p>
-
-        {unified && unified.assets.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {unified.assets.map((a) => (
-              <span
-                key={a.symbol}
-                className="rounded-full bg-gold-soft/70 px-3 py-1 text-xs font-bold text-gold-deep"
-              >
-                {a.amount.toLocaleString("en-US", { maximumFractionDigits: 4 })} {a.symbol}
-                <span className="ml-1 font-semibold text-ink-soft/70">{money(a.amountUsd)}</span>
-              </span>
-            ))}
+      <div className="stagger">
+        <div style={{ "--i": 0 } as React.CSSProperties}>
+        <Card className="mt-6 flex items-center gap-4 p-5">
+          <div className="relative shrink-0">
+            <Avatar seed={user?.seed ?? "you"} size={56} />
+            <button
+              type="button"
+              onClick={() => setAvatarOpen(true)}
+              aria-label={t("profile.chooseAvatar")}
+              className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gold ring-2 ring-surface transition active:scale-90"
+            >
+              <EditIcon />
+            </button>
           </div>
-        )}
-        {unified && unified.assets.length === 0 && !balLoading && (
-          <p className="mt-2 text-xs font-medium text-ink-soft">{t("profile.balance.empty")}</p>
-        )}
-      </Card>
-
-      <div className="mt-6 flex flex-col gap-3">
-        <ListRow href="/goals" icon={<GoalsIcon />} label={t("profile.myGoals")} />
-        <ListRow href="/activity" icon={<ActivityIcon />} label={t("profile.activity")} />
-        <ListRowButton onClick={() => setSheet(true)} icon={<WithdrawIcon />} label={t("profile.withdraw.title")} />
-        <ListRow href="/settings" icon={<SettingsIcon />} label={t("profile.settings")} />
-      </div>
-
-      <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
-      <Card className="mt-3 p-4">
-        <div className="flex items-center justify-between gap-2">
-          {BADGES.map((b, i) => (
-            <img
-              key={b}
-              src={`/art/badge/${b}.png`}
-              alt=""
-              aria-hidden
-              className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
-              draggable={false}
-            />
-          ))}
+          <div className="min-w-0">
+            <p className="font-display text-lg font-semibold text-ink">{user?.name ?? t("profile.you")}</p>
+            <p className="truncate text-sm font-medium text-ink-soft">{user?.email ?? t("profile.signedIn")}</p>
+            {user?.addr && <p className="mt-1 select-all break-all font-mono text-[11px] text-ink-soft/60">{user.addr}</p>}
+          </div>
+        </Card>
         </div>
-      </Card>
+
+        {/* Unified cross-chain balance */}
+        <div style={{ "--i": 1 } as React.CSSProperties}>
+        <Card className="mt-4 p-5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-ink-soft">{t("profile.balance.title")}</span>
+            <button
+              type="button"
+              onClick={loadBalance}
+              disabled={balLoading}
+              aria-label={t("profile.balance.refresh")}
+              className="text-gold-deep transition active:scale-90 disabled:opacity-40"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className={balLoading ? "animate-spin" : ""}>
+                <path d="M20 11a8 8 0 10-.5 4M20 5v6h-6" stroke="#E09A1E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          {balLoading && !unified ? (
+            <div className="mt-2 h-9 w-32 overflow-hidden rounded-full bg-gold-soft/60 shimmer" />
+          ) : (
+            <p className="mt-1 font-display text-[32px] font-bold leading-none text-gold-deep">
+              {money(unified?.totalUsd ?? 0)}
+            </p>
+          )}
+          <p className="mt-1 text-[11px] font-semibold text-ink-soft/70">{t("profile.balance.across")}</p>
+
+          {unified && unified.assets.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {unified.assets.map((a) => (
+                <span
+                  key={a.symbol}
+                  className="rounded-full bg-gold-soft/70 px-3 py-1 text-xs font-bold text-gold-deep"
+                >
+                  {a.amount.toLocaleString("en-US", { maximumFractionDigits: 4 })} {a.symbol}
+                  <span className="ml-1 font-semibold text-ink-soft/70">{money(a.amountUsd)}</span>
+                </span>
+              ))}
+            </div>
+          )}
+          {unified && unified.assets.length === 0 && !balLoading && (
+            <p className="mt-2 text-xs font-medium text-ink-soft">{t("profile.balance.empty")}</p>
+          )}
+        </Card>
+        </div>
+
+        <div style={{ "--i": 2 } as React.CSSProperties} className="mt-6 flex flex-col gap-3">
+          <ListRow href="/goals" icon={<GoalsIcon />} label={t("profile.myGoals")} />
+          <ListRow href="/activity" icon={<ActivityIcon />} label={t("profile.activity")} />
+          <ListRowButton onClick={() => setSheet(true)} icon={<WithdrawIcon />} label={t("profile.withdraw.title")} />
+          <ListRow href="/settings" icon={<SettingsIcon />} label={t("profile.settings")} />
+        </div>
+
+        <div style={{ "--i": 3 } as React.CSSProperties}>
+          <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
+          <Card className="mt-3 p-4">
+            <div className="flex items-center justify-between gap-2">
+              {BADGES.map((b, i) => (
+                <img
+                  key={b}
+                  src={`/art/badge/${b}.png`}
+                  alt=""
+                  aria-hidden
+                  className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
+                  draggable={false}
+                />
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
 
       <p className="mt-8 text-center text-xs font-semibold text-ink-soft/70">{t("profile.tagline")}</p>
 
