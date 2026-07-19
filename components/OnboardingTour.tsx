@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { PillButton } from "./ui";
 import { StepDots } from "./Stepper";
 import { useDialog } from "@/lib/useDialog";
@@ -32,11 +32,25 @@ export function OnboardingTour({
   const titleId = useId();
   const close = () => onDone(dontShowAgain);
   const dialogRef = useDialog<HTMLDivElement>(open, close);
+  const touchStartX = useRef<number | null>(null);
 
   if (!open) return null;
 
   const last = step === STEPS.length - 1;
   const s = STEPS[step];
+
+  const SWIPE_THRESHOLD = 40;
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    if (dx < 0 && !last) setStep((n) => n + 1);
+    else if (dx > 0 && step > 0) setStep((n) => n - 1);
+  }
 
   return (
     <div className="backdrop-in fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4 py-6">
@@ -47,6 +61,8 @@ export function OnboardingTour({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         <button
           type="button"
