@@ -262,6 +262,11 @@ a {
   animation: sheet-up 0.36s var(--ease-spring) both;
 }
 
+/* Slower slide-up for the bottom nav (same motion, more leisurely). */
+.nav-slide-up {
+  animation: sheet-up 0.7s var(--ease-spring) both;
+}
+
 /* Gentle idle "breathing" for the hero jar. */
 @keyframes breathe {
   0%,

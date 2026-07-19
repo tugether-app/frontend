@@ -56,7 +56,7 @@ export function BottomNav() {
   const { t } = useI18n();
 
   return (
-    <nav className="sheet-up fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2">
+    <nav className="nav-slide-up fixed inset-x-0 bottom-0 z-30 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2">
       <div className="mx-auto flex max-w-sm items-center justify-between rounded-[26px] border border-line bg-surface/95 px-4 py-2.5 shadow-[0_10px_26px_rgba(43,38,34,0.10)] backdrop-blur">
         {ITEMS.map((it) => {
           const active = it.href === "/" ? pathname === "/" : pathname.startsWith(it.href);
