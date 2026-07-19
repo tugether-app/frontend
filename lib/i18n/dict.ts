@@ -74,6 +74,11 @@ const en: Dict = {
   "cat.custom": "Other",
 
   "profile.achievements": "Achievements",
+  "badge.badge-first-goal": "First Goal",
+  "badge.badge-first-deposit": "First Deposit",
+  "badge.badge-first-member": "First Member",
+  "badge.badge-goal-completed": "Goal Completed",
+  "badge.badge-super-saver": "Super Saver",
   "create.submit": "Create goal",
   "create.note": "The jar is created automatically. No wallet, no hidden fees.",
   "create.created": "Goal created!",
@@ -271,6 +276,11 @@ const id: Dict = {
   "cat.custom": "Lainnya",
 
   "profile.achievements": "Pencapaian",
+  "badge.badge-first-goal": "Tujuan Pertama",
+  "badge.badge-first-deposit": "Setoran Pertama",
+  "badge.badge-first-member": "Anggota Pertama",
+  "badge.badge-goal-completed": "Tujuan Selesai",
+  "badge.badge-super-saver": "Penabung Jago",
   "create.submit": "Buat tujuan",
   "create.note": "Celengan dibuat otomatis. Tanpa wallet, tanpa biaya tersembunyi.",
   "create.created": "Tujuan dibuat!",
