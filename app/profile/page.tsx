@@ -18,6 +18,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
 import { useDialog } from "@/lib/useDialog";
+import { useEnter } from "@/lib/useEnter";
 import { money } from "@/lib/format";
 import { sendFunds, getUsdcBalance, getUnifiedBalance, VaultFlowError, type UnifiedBalance } from "@/lib/sdk/particle";
 
@@ -82,6 +83,7 @@ function Profile() {
   const { t } = useI18n();
   const router = useRouter();
   const toast = useToast();
+  const entered = useEnter();
   const { user, logout, getProvider } = useAuth();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
@@ -172,7 +174,7 @@ function Profile() {
 
       <h1 className="mt-8 font-display text-[28px] font-semibold tracking-tight text-ink">{t("profile.title")}</h1>
 
-      <div className="stagger">
+      <div className={`stagger-enter ${entered ? "" : "is-out"}`}>
         <div style={{ "--i": 0 } as React.CSSProperties}>
         <Card className="mt-6 flex items-center gap-4 p-5">
           <div className="relative shrink-0">
@@ -250,16 +252,18 @@ function Profile() {
         <div style={{ "--i": 3 } as React.CSSProperties}>
           <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
           <Card className="mt-3 p-4">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-start justify-between gap-2">
               {BADGES.map((b, i) => (
-                <img
-                  key={b}
-                  src={`/art/badge/${b}.png`}
-                  alt=""
-                  aria-hidden
-                  className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
-                  draggable={false}
-                />
+                <div key={b} className="flex flex-col items-center gap-1 text-center">
+                  <img
+                    src={`/art/badge/${b}.png`}
+                    alt=""
+                    aria-hidden
+                    className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
+                    draggable={false}
+                  />
+                  <span className="text-[10px] font-bold leading-tight text-ink-soft">{t(`badge.${b}`)}</span>
+                </div>
               ))}
             </div>
           </Card>
