@@ -9,6 +9,7 @@ import { WordMark } from "@/components/BrandIcon";
 import { Avatar } from "@/components/Avatar";
 import { AvatarPicker } from "@/components/AvatarPicker";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AchievementDialog } from "@/components/AchievementDialog";
 import { ListRow, ListRowButton } from "@/components/ListRow";
 import { BottomNav } from "@/components/BottomNav";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -17,10 +18,19 @@ import { useI18n } from "@/lib/i18n/provider";
 import { useAuth } from "@/lib/auth";
 import { useDialog } from "@/lib/useDialog";
 import { useEnter } from "@/lib/useEnter";
+import { useCachedFetch } from "@/lib/useCachedFetch";
+import { api } from "@/lib/client";
 import { money } from "@/lib/format";
 import { sendFunds, getUsdcBalance, getUnifiedBalance, VaultFlowError, type UnifiedBalance } from "@/lib/sdk/particle";
+import { computeUnlockedBadges, type BadgeId } from "@/lib/achievements";
 
-const BADGES = ["badge-first-goal", "badge-first-deposit", "badge-first-member", "badge-goal-completed", "badge-super-saver"];
+const BADGES: BadgeId[] = [
+  "badge-first-goal",
+  "badge-first-deposit",
+  "badge-first-member",
+  "badge-goal-completed",
+  "badge-super-saver",
+];
 
 export default function ProfilePage() {
   return (
@@ -82,6 +92,9 @@ function Profile() {
   const toast = useToast();
   const entered = useEnter();
   const { user, logout, getProvider } = useAuth();
+  const goals = useCachedFetch("goals:all", () => api.listGoals());
+  const unlockedBadges = computeUnlockedBadges(goals ?? [], user?.addr);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeId | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -256,18 +269,26 @@ function Profile() {
           <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("profile.achievements")}</h2>
           <Card className="mt-3 p-4">
             <div className="flex items-start justify-between gap-2">
-              {BADGES.map((b, i) => (
-                <div key={b} className="flex flex-col items-center gap-1 text-center">
-                  <img
-                    src={`/art/badge/${b}.png`}
-                    alt=""
-                    aria-hidden
-                    className={`h-14 w-14 select-none ${i === 0 ? "" : "opacity-30 grayscale"}`}
-                    draggable={false}
-                  />
-                  <span className="text-[10px] font-bold leading-tight text-ink-soft">{t(`badge.${b}`)}</span>
-                </div>
-              ))}
+              {BADGES.map((b) => {
+                const unlocked = unlockedBadges.has(b);
+                return (
+                  <button
+                    type="button"
+                    key={b}
+                    onClick={() => setSelectedBadge(b)}
+                    className="flex flex-col items-center gap-1 text-center transition active:scale-95"
+                  >
+                    <img
+                      src={`/art/badge/${b}.png`}
+                      alt=""
+                      aria-hidden
+                      className={`h-14 w-14 select-none ${unlocked ? "" : "opacity-30 grayscale"}`}
+                      draggable={false}
+                    />
+                    <span className="text-[10px] font-bold leading-tight text-ink-soft">{t(`badge.${b}`)}</span>
+                  </button>
+                );
+              })}
             </div>
           </Card>
         </div>
@@ -351,6 +372,12 @@ function Profile() {
         loading={signingOut}
         onConfirm={confirmedSignOut}
         onClose={() => setConfirmSignOut(false)}
+      />
+
+      <AchievementDialog
+        badge={selectedBadge}
+        unlocked={selectedBadge ? unlockedBadges.has(selectedBadge) : false}
+        onClose={() => setSelectedBadge(null)}
       />
 
       <BottomNav />
