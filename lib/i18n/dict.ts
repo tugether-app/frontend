@@ -85,6 +85,7 @@ const en: Dict = {
   "create.createdHint": "Share this link so your friends can chip in too.",
   "create.openGoal": "Open goal",
   "create.err": "Could not create goal",
+  "create.autoJoinErr": "Goal created, but we couldn't add you as a member automatically. Open it and tap Join.",
 
   "goal.savingTogether": "{n} saving together",
   "goal.ofGoal": "of {v} goal",
@@ -108,6 +109,7 @@ const en: Dict = {
   "goal.backHome": "Back to home",
   "goal.joined": "You're in!",
   "goal.depositOk": "Deposit received!",
+  "goal.depositSyncErr": "Deposit went through, but syncing to the server failed. It'll catch up shortly.",
   "goal.withdrawOk": "Funds withdrawn",
 
   "goal.vote.title": "What should we do?",
@@ -287,6 +289,7 @@ const id: Dict = {
   "create.createdHint": "Bagikan link ini biar teman-temanmu bisa ikut nabung.",
   "create.openGoal": "Buka tujuan",
   "create.err": "Gagal membuat tujuan",
+  "create.autoJoinErr": "Tujuan berhasil dibuat, tapi gagal otomatis gabungin kamu. Buka lagi terus tap Gabung.",
 
   "goal.savingTogether": "{n} orang nabung bareng",
   "goal.ofGoal": "dari target {v}",
@@ -310,6 +313,7 @@ const id: Dict = {
   "goal.backHome": "Kembali ke beranda",
   "goal.joined": "Berhasil gabung!",
   "goal.depositOk": "Setoran masuk!",
+  "goal.depositSyncErr": "Setoran udah masuk on-chain, tapi gagal sync ke server. Bakal ke-update lagi sebentar.",
   "goal.withdrawOk": "Dana ditarik",
 
   "goal.vote.title": "Mau dibawa ke mana?",
