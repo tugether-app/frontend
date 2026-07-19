@@ -3,6 +3,7 @@ import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 import { I18nProvider } from "@/lib/i18n/provider";
+import { ThemeProvider } from "@/lib/theme/provider";
 import { AuthProvider } from "@/lib/auth";
 import { OfflineGate } from "@/components/OfflineGate";
 import { MaintenanceScreen } from "@/components/MaintenanceScreen";
@@ -50,16 +51,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <div className="aurora" aria-hidden />
-        <I18nProvider>
-          {MAINTENANCE ? (
-            <MaintenanceScreen />
-          ) : (
-            <ToastProvider>
-              <AuthProvider>{children}</AuthProvider>
-            </ToastProvider>
-          )}
-          <OfflineGate />
-        </I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            {MAINTENANCE ? (
+              <MaintenanceScreen />
+            ) : (
+              <ToastProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </ToastProvider>
+            )}
+            <OfflineGate />
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

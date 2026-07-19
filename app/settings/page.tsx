@@ -7,6 +7,12 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n/provider";
 import { LANGS } from "@/lib/i18n/dict";
 import { useEnter } from "@/lib/useEnter";
+import { useTheme, type Theme } from "@/lib/theme/provider";
+
+const THEMES: { code: Theme; labelKey: string }[] = [
+  { code: "light", labelKey: "settings.theme.light" },
+  { code: "dimmed", labelKey: "settings.theme.dimmed" },
+];
 
 export default function SettingsPage() {
   return (
@@ -18,6 +24,7 @@ export default function SettingsPage() {
 
 function Settings() {
   const { t, lang, setLang } = useI18n();
+  const { theme, setTheme } = useTheme();
   const entered = useEnter();
 
   return (
@@ -59,8 +66,38 @@ function Settings() {
           </Card>
         </div>
 
-        {/* Currency (locked for now) */}
+        {/* Appearance */}
         <div style={{ "--i": 1 } as React.CSSProperties}>
+          <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("settings.appearance")}</h2>
+          <Card className="mt-3 divide-y divide-line p-1">
+            {THEMES.map((th) => {
+              const active = theme === th.code;
+              return (
+                <button
+                  key={th.code}
+                  onClick={() => setTheme(th.code)}
+                  className="flex w-full items-center gap-3 rounded-[18px] px-4 py-3.5 text-left transition active:scale-[0.99]"
+                >
+                  <span className="flex-1 font-semibold text-ink">{t(th.labelKey)}</span>
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${
+                      active ? "border-gold bg-gold" : "border-line"
+                    }`}
+                  >
+                    {active && (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 13l4 4L19 7" stroke="#2B2622" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </Card>
+        </div>
+
+        {/* Currency (locked for now) */}
+        <div style={{ "--i": 2 } as React.CSSProperties}>
           <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("settings.currency")}</h2>
           <Card className="mt-3 flex items-center gap-3 p-4">
             <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-gold-soft font-display font-bold text-gold-deep">$</span>

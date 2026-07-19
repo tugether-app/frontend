@@ -171,6 +171,9 @@ const en: Dict = {
 
   "settings.title": "Settings",
   "settings.language": "Language",
+  "settings.appearance": "Appearance",
+  "settings.theme.light": "Light",
+  "settings.theme.dimmed": "Dimmed",
   "settings.currency": "Currency",
   "settings.currencyNote": "More currencies coming soon.",
   "settings.done": "Done",
@@ -375,6 +378,9 @@ const id: Dict = {
 
   "settings.title": "Pengaturan",
   "settings.language": "Bahasa",
+  "settings.appearance": "Tampilan",
+  "settings.theme.light": "Terang",
+  "settings.theme.dimmed": "Redup",
   "settings.currency": "Mata uang",
   "settings.currencyNote": "Mata uang lain segera hadir.",
   "settings.done": "Selesai",

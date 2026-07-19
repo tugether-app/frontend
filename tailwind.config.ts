@@ -8,21 +8,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#FBFAF7",
-        surface: "#FFFFFF",
+        // RGB triplets (not hex) via app/globals.css's --x-rgb variables, so
+        // the `<alpha-value>` placeholder still works for opacity modifiers
+        // like bg-gold-soft/70. The "Dimmed" appearance (Settings >
+        // Appearance) overrides these at runtime via [data-theme="dimmed"]
+        // without touching any component.
+        bg: "rgb(var(--bg-rgb) / <alpha-value>)",
+        surface: "rgb(var(--surface-rgb) / <alpha-value>)",
         gold: {
-          DEFAULT: "#F4B740",
-          deep: "#E09A1E",
-          soft: "#FDF3DC",
+          DEFAULT: "rgb(var(--gold-rgb) / <alpha-value>)",
+          deep: "rgb(var(--gold-deep-rgb) / <alpha-value>)",
+          soft: "rgb(var(--gold-soft-rgb) / <alpha-value>)",
         },
         ink: {
-          DEFAULT: "#2B2622",
-          soft: "#8A8178",
+          DEFAULT: "rgb(var(--ink-rgb) / <alpha-value>)",
+          soft: "rgb(var(--ink-soft-rgb) / <alpha-value>)",
         },
-        line: "#ECE7DE",
-        success: "#3FB984",
-        error: "#E2574C",
-        blush: "#F6B6A0",
+        line: "rgb(var(--line-rgb) / <alpha-value>)",
+        success: "rgb(var(--success-rgb) / <alpha-value>)",
+        error: "rgb(var(--error-rgb) / <alpha-value>)",
+        blush: "rgb(var(--blush-rgb) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Nunito", "system-ui", "sans-serif"],

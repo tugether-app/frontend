@@ -5,18 +5,55 @@
 :root {
   --font-sans: "Nunito", system-ui, -apple-system, sans-serif;
   --font-display: "Fredoka", var(--font-sans);
+  /* Hex, for raw CSS below (body/.card/etc). RGB triplets alongside for
+     Tailwind's `rgb(var(--x-rgb) / <alpha-value>)` pattern in
+     tailwind.config.ts, so opacity modifiers like bg-gold-soft/70 keep
+     working once these become swappable theme variables. Keep each pair in
+     sync -- including in the [data-theme="dimmed"] override below. */
   --bg: #fbfaf7;
+  --bg-rgb: 251 250 247;
   --surface: #ffffff;
+  --surface-rgb: 255 255 255;
   --gold: #f4b740;
+  --gold-rgb: 244 183 64;
   --gold-deep: #e09a1e;
+  --gold-deep-rgb: 224 154 30;
   --gold-soft: #fdf3dc;
+  --gold-soft-rgb: 253 243 220;
   --ink: #2b2622;
+  --ink-rgb: 43 38 34;
   --ink-soft: #8a8178;
+  --ink-soft-rgb: 138 129 120;
   --line: #ece7de;
+  --line-rgb: 236 231 222;
   --success: #3fb984;
+  --success-rgb: 63 185 132;
   --error: #e2574c;
+  --error-rgb: 226 87 76;
+  --blush: #f6b6a0;
+  --blush-rgb: 246 182 160;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* "Dimmed" appearance (Settings > Appearance): a softer, lower-brightness
+   take on the same light palette -- not an inverted dark mode. Same
+   structure (light backgrounds, dark text), just less glare. */
+[data-theme="dimmed"] {
+  --bg: #e8e3d8;
+  --bg-rgb: 232 227 216;
+  --surface: #f1ece1;
+  --surface-rgb: 241 236 225;
+  --gold: #d9a73a;
+  --gold-rgb: 217 167 58;
+  --gold-deep: #bf8a22;
+  --gold-deep-rgb: 191 138 34;
+  --gold-soft: #eadfc0;
+  --gold-soft-rgb: 234 223 192;
+  --ink-soft: #7d7365;
+  --ink-soft-rgb: 125 115 101;
+  --line: #dad2c0;
+  --line-rgb: 218 210 192;
 }
 
 * {
@@ -49,6 +86,14 @@ body {
     radial-gradient(50% 45% at 82% 90%, rgba(244, 183, 64, 0.18), transparent 70%),
     radial-gradient(45% 45% at 8% 92%, rgba(246, 182, 160, 0.18), transparent 72%),
     linear-gradient(160deg, #fffdf9 0%, #fbf6ec 100%);
+}
+[data-theme="dimmed"] .aurora {
+  background:
+    radial-gradient(40% 35% at 12% 8%, rgba(217, 167, 58, 0.18), transparent 70%),
+    radial-gradient(45% 40% at 88% 6%, rgba(234, 223, 192, 0.75), transparent 70%),
+    radial-gradient(50% 45% at 82% 90%, rgba(217, 167, 58, 0.12), transparent 70%),
+    radial-gradient(45% 45% at 8% 92%, rgba(220, 163, 145, 0.14), transparent 72%),
+    linear-gradient(160deg, #f2ede1 0%, #e9e2d2 100%);
 }
 
 /* Keyboard focus only. */
