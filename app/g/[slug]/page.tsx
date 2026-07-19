@@ -22,6 +22,7 @@ import { catIcon } from "@/lib/categories";
 import { useAuth } from "@/lib/auth";
 import { withViewTransition } from "@/lib/viewTransition";
 import { useDialog } from "@/lib/useDialog";
+import { useEnter } from "@/lib/useEnter";
 import {
   depositToVault,
   getUsdcBalance,
@@ -57,6 +58,7 @@ export default function GoalPage() {
   const [celebrate, setCelebrate] = useState(false);
   const [vaultState, setVaultState] = useState<VaultState | null>(null);
   const prevStatus = useRef<string | undefined>(undefined);
+  const entered = useEnter();
 
   const refreshVaultState = useCallback(
     async (g: Goal) => {
@@ -313,7 +315,7 @@ export default function GoalPage() {
         <ProgressRing pct={pct} size={44} stroke={6} />
       </header>
 
-      <div className="stagger">
+      <div className={`stagger-enter ${entered ? "" : "is-out"}`}>
       {/* Hero */}
       <div style={{ "--i": 0 } as React.CSSProperties} className="mt-4 flex flex-col items-center text-center">
         <div className="flex items-center gap-2">
@@ -493,7 +495,12 @@ export default function GoalPage() {
       </div>
 
       {/* Sticky action bar */}
-      <div className="sheet-up fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 px-6 pt-4 pb-[max(env(safe-area-inset-bottom),16px)] backdrop-blur">
+      <div
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 px-6 pt-4 pb-[max(env(safe-area-inset-bottom),16px)] backdrop-blur transition-[transform,opacity] duration-500 ${
+          entered ? "translate-y-0 opacity-100" : "translate-y-full opacity-50"
+        }`}
+        style={{ transitionTimingFunction: "var(--ease-spring)" }}
+      >
         <div className="mx-auto max-w-md">{renderActionBar()}</div>
       </div>
 

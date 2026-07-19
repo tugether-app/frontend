@@ -6,6 +6,7 @@ import { FlagIcon } from "@/components/FlagIcon";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n/provider";
 import { LANGS } from "@/lib/i18n/dict";
+import { useEnter } from "@/lib/useEnter";
 
 export default function SettingsPage() {
   return (
@@ -17,6 +18,7 @@ export default function SettingsPage() {
 
 function Settings() {
   const { t, lang, setLang } = useI18n();
+  const entered = useEnter();
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-6">
@@ -25,7 +27,7 @@ function Settings() {
         <span className="font-display text-lg font-semibold text-ink">{t("settings.title")}</span>
       </header>
 
-      <div className="stagger">
+      <div className={`stagger-enter ${entered ? "" : "is-out"}`}>
         {/* Language */}
         <div style={{ "--i": 0 } as React.CSSProperties}>
           <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-ink-soft">{t("settings.language")}</h2>

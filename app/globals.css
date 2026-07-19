@@ -343,6 +343,21 @@ a {
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
+/* JS-driven equivalent of .stagger, for content reached via internal
+   navigation (see lib/useEnter.ts): a plain `animation` on mount gets
+   swallowed by the View Transitions API, so this uses a `transition`
+   instead. Children default to their settled state; the container's
+   `is-out` class (toggled by useEnter, briefly, post-hydration) is what
+   actually plays the entrance. */
+.stagger-enter > * {
+  transition: opacity 0.42s var(--ease-out), transform 0.42s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 45ms);
+}
+.stagger-enter.is-out > * {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
 @keyframes popover-in {
   from {
     opacity: 0;
